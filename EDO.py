@@ -1,7 +1,7 @@
 import Constantes
 
 def test():
-    return 
+    return 0
     
 test()
 
