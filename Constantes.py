@@ -1,6 +1,5 @@
 #Fichier contenant toutes nos constantes
 
-
 #Geometry
 Rcell = 8 #µM
 fR = 0.25
