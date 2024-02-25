@@ -1,5 +1,12 @@
 #Fichier contenant toutes nos constantes
 
+
+import numpy as np
+from scipy.integrate import solve_ivp
+from scipy import constants
+import matplotlib.pyplot as plt
+
+
 #Geometry
 Rcell = 8 #µM
 fR = 0.25
@@ -37,3 +44,33 @@ rho_PMCA = 68.57
 rho_CRAC0 = 0.6
 rho_CRAC_pos = 3.9
 rho_CRAC_neg = 0.5115
+
+
+
+C_SERCA = 0.4 #µM
+n_SERCA = 2
+C_PMCA = 0.1
+
+Far_cte = 96485.33212 #Faraday constant C mol^-1
+zCA = 2
+
+#--------Fonctions--------
+
+def Hill_function(X,K,n): #fonction de hill (8)
+    return X**n/(X**n + K**n)
+
+def BC(b,K,C): #cytosolic calcium-buffer (2)
+    return (b*K) / (C+K)**2
+
+def fC(b0,C,Kb):  #fraction of free calcium (3)
+    return 1 / ( 1 + b0/(C+Kb) )
+
+#-------Déterminations de constantes-----
+I_SERCA = 3.10**(-6) * Hill_function(C,C_SERCA,n_SERCA) #constantes disponibles sur le papier
+
+
+
+g_IP3R = 0.81 * Hill_function(C, 0,21, 1.9) # (27) cte dispo sur le papier
+C_IP3R_inh = 52*H(P, 0.05, 4)
+h_IP3R = Hill_function(C_IP3R_inh, C, 3.9)
+
