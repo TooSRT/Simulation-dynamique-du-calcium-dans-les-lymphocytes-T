@@ -3,7 +3,8 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
-
+import sys
+sys.path.insert
 #Numérotation correspondent à celles de l'article 
 #-------EDO-------
 

@@ -110,7 +110,7 @@ def dC_dt(t,Y0,Y1,Y2,Y3,Y4,Y5,Y6):
     #--------Système d'ODE--------
     dC_dt = -1/(zCA*(Faraday*(1 + B_C))) * (Xi*rho_PMCA*I_PMCA + Xi*rho_CRAC*I_CRAC + Xi_ERC*rho_SERCA*I_SERCA + Xi_ERC*rho_IP3R*I_IP3R)
     dC_ER_dt = Xi_ER*(rho_SERCA*I_SERCA +rho_IP3R*I_IP3R)/(zCA*(Faraday*(1 + B_CER)))       # (4)
-    dP_dt = beta_p * Hill_function(C,Cp,n_p)*T(t) - gamma_p*P         # (7)  T(t)=1 ?
+    dP_dt = beta_p * Hill_function(C,Cp,n_p)*T(t) - gamma_p*P         # (7)  T(t) vaut toujours 1 ?
     drho_CRAC_dt = (rho_CRAC_barre - rho_CRAC )/ 5      #(24)
     dg_IP3R_dt = (g_IP3R_max*Hill_function(C,C_IP3R_act,n_IP3R_act) - g_IP3R) /tau_IP3R      # (29)
     dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, n_IP3R_inh) - h_IP3R)/theta      # (29)
