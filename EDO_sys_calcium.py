@@ -53,7 +53,7 @@ class Parameters_system_ODE:
         
         #-------Déterminations de constantes--------
         self.dict_params["Faraday"] = 96485.33212 #Faraday constant C mol^-1
-        self.dict_params["zCA"] = 2
+        self.dict_params["zCA"] = 2.
         self.dict_params["V_C_barre"] = 50 #(9)
 
         self.dict_params["Vcyt"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 * (1-self.dict_params["fV"]-self.dict_params["fR"]**3) #(20)
@@ -124,7 +124,7 @@ def ODE_sys(t, Y, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, delta
     #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
     B_C = BC(b0,Kb,C)
     B_CER = BC(b_ER0,K_ERb,C_ER)
-    I_SERCA = 3.10**(-6) * Hill_function(C, 0.4, 2) #(32)
+    I_SERCA = 3*10**(-6) * Hill_function(C, 0.4, 2) #(32)
     I_PMCA = 10**(-5)* g_PMCA #(30)
     I_CRAC = 2*(V0 - V_C_barre)    #(23) car V=V0
     V_C_ER_barre = 8.315*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER
@@ -139,7 +139,7 @@ def ODE_sys(t, Y, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, delta
     #--------Système d'ODE--------
     dC_dt = -1/(zCA*(Faraday*(1 + B_C))) * (Xi*rho_PMCA*I_PMCA + Xi*rho_CRAC*I_CRAC + Xi_ERC*rho_SERCA*I_SERCA + Xi_ERC*rho_IP3R*I_IP3R)
     dC_ER_dt = Xi_ER*(rho_SERCA*I_SERCA + rho_IP3R*I_IP3R)/(zCA*(Faraday*(1 + B_CER)))       # (4)
-    dP_dt = beta_p * Hill_function(C,Cp,n_p)*t - gamma_p*P         # (7)  T(t) vaut toujours 1 ?
+    dP_dt = beta_p * Hill_function(C,Cp,n_p)*t - gamma_p*P         # (7) 
     drho_CRAC_dt = (rho_CRAC_barre - rho_CRAC )/ 5.     #(24)
     dg_IP3R_dt = (g_IP3R_max*Hill_function(C,C_IP3R_act,n_IP3R_act) - g_IP3R) /tau_IP3R     # (29)
     dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, n_IP3R_inh) - h_IP3R)/theta      # (29)
