@@ -160,9 +160,21 @@ def main():
     t = np.linspace(0, 15, 300)
     z = sol.sol(t)
     plt.plot(t, z.T)
+    plt.plot(t, z[2])
     plt.xlabel('t')
     plt.legend([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"])
     plt.title('Calcium simulation')
+    plt.show()
+    
+    #Tracer chaque courbe séparément
+    plt.figure(figsize=(10, 8))
+    for i, var_name in enumerate([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"]):
+        plt.subplot(4, 2, i+1)
+        plt.plot(t, z[i])
+        plt.xlabel('t')
+        plt.title(var_name)
+    
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
