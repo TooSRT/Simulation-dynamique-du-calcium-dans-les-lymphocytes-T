@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 #Numérotation correspondent à celles de l'article 
 
+#Valeurs des constantes: µM / mm / secondes / mV
 
 class Parameters_system_ODE:
     def __init__(self):
@@ -23,23 +24,23 @@ class Parameters_system_ODE:
         #Ions and potentials:
         self.dict_params["Temp"] = 310 #Kelvin
         self.dict_params["V0"] = self.dict_params["V_ER"] = -60 #mV #V=V0=V_ER
-        self.dict_params["V_ER0"] = -60
+        self.dict_params["V_ER0"] = -60 #mV
         self.dict_params["C0"] = 0.1 #µM
-        self.dict_params["C_ER0"] = 0.4 # mM
-        self.dict_params["C_ext"] = 2 #mM
+        self.dict_params["C_ER0"] = 0.4e3 #µM
+        self.dict_params["C_ext"] = 2e3 #µM
         self.dict_params["delta_V_C"] = 78 #mV
         self.dict_params["delta_V_C_ER"] = 63 #mv
 
         #Calcium buffer: µM
         self.dict_params["b0"] = 100
         self.dict_params["Kb"] = 0.1
-        self.dict_params["b_ER0"] = 30
-        self.dict_params["K_ERb"] = 0.1
+        self.dict_params["b_ER0"] = 30e3
+        self.dict_params["K_ERb"] = 0.1e3
 
-        #Second messengers: nM
-        self.dict_params["P0"] = 8.7
-        self.dict_params["beta_p"] = 0.6 #nM/s
-        self.dict_params["gamma_p"] = 0.01149 #nM/s
+        #Second messengers: µM
+        self.dict_params["P0"] = 8.7e-3 #µM
+        self.dict_params["beta_p"] = 0.6e-3 #µM/s
+        self.dict_params["gamma_p"] = 0.01149e-3 #µM/s
         self.dict_params["Cp"] = 0.5 #µM
         self.dict_params["n_p"] = 1
 
@@ -52,29 +53,29 @@ class Parameters_system_ODE:
         self.dict_params["rho_CRAC_neg"] = 0.5115
         
         #-------Déterminations de constantes--------
-        self.dict_params["Faraday"] = 96485.33212 #Faraday constant C mol^-1
+        self.dict_params["Faraday"] = 96485.33212 #Faraday constant C/mol
         self.dict_params["zCA"] = 2.
-        self.dict_params["V_C_barre"] = 50 #(9)
+        self.dict_params["V_C_barre"] = 50 #mV (9)
 
         self.dict_params["Vcyt"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 * (1-self.dict_params["fV"]-self.dict_params["fR"]**3) #(20)
         self.dict_params["V_ER_tilde"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 *self.dict_params["fV"] #(21)
         self.dict_params["A_ER"] = 4*np.pi*self.dict_params["fA"]*(3*self.dict_params["V_ER_tilde"]/4*np.pi)**(2./3.) #(22)
 
-        self.dict_params["Xi"] = 804.2/self.dict_params["Vcyt"] #(16)
+        self.dict_params["Xi"] = 804.2/self.dict_params["Vcyt"] #(16) µm^2
         self.dict_params["Xi_ER"] = self.dict_params["A_ER"]/self.dict_params["Vcyt"]   #(17)
         self.dict_params["Xi_ERC"] = self.dict_params["A_ER"]/self.dict_params["V_ER_tilde"] #(19)
         
         #--------Constantes--------
         self.dict_params["g_IP3R_max"] = 0.81
-        self.dict_params["C_IP3R_act"] = 0.21
+        self.dict_params["C_IP3R_act"] = 0.21 #µM
         self.dict_params["n_IP3R_act"] = 1.9
-        self.dict_params["tau_IP3R"] = 100 # compris entre 1sec et 100ms
+        self.dict_params["tau_IP3R"] = 0.1 #s
         
-        self.dict_params["theta"] = 300
-        self.dict_params["n_IP3R_inh"] = 3.9
+        self.dict_params["theta"] = 0.3 #(29)
+        self.dict_params["n_IP3R_inh"] = 3.9 #(27)
 
         self.dict_params["C_PMCA"] = 0.1 #µM
-        self.dict_params["tau_PMCA"] = 50 #s
+        self.dict_params["tau_PMCA"] = 50 #s (31)
 
 
 
@@ -124,15 +125,17 @@ def ODE_sys(t, Y, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, delta
     #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
     B_C = BC(b0,Kb,C)
     B_CER = BC(b_ER0,K_ERb,C_ER)
-    I_SERCA = 3*10**(-6) * Hill_function(C, 0.4, 2) #(32)
-    I_PMCA = 10**(-5)* g_PMCA #(30)
-    I_CRAC = 2*(V0 - V_C_barre)    #(23) car V=V0
-    V_C_ER_barre = 8.315*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER
+
+    I_SERCA = 3*10**(-6) * Hill_function(C, 0.4, 2) #(32) #pico-ampère pour I_SERCA_BARRE
+    I_PMCA = 10**(-5)* g_PMCA #(30) #pico-ampère pour I_PMCA_BARRE
+    I_CRAC = 2*(V0 - V_C_barre)    #(23) car V=V0 à revoir pour le 2
+    V_C_ER_barre = 8.315*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER #(9) revoir le 8.315
     rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,169, 4.2)) #(25) 
-    g_IP3R = 0.81 * Hill_function(C, 0.21, 1.9) # (27) Constante dispo sur le papier
+    
+    g_IP3R = 0.81 * Hill_function(C, 0.21, 1.9) # (27) 
     C_IP3R_inh = 52 * Hill_function(P, 0.05, 4)
     h_IP3R = Hill_function(C_IP3R_inh, C, 3.9)
-    I_IP3R = 0.064*g_IP3R*h_IP3R*(V0 - V_ER - V_C_ER_barre)
+    I_IP3R = 0.064*g_IP3R*h_IP3R*(V0 - V_ER - V_C_ER_barre) # (28) revoir le 0.064
 
     
 
@@ -160,7 +163,6 @@ def main():
     t = np.linspace(0, 15, 300)
     z = sol.sol(t)
     plt.plot(t, z.T)
-    plt.plot(t, z[2])
     plt.xlabel('t')
     plt.legend([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"])
     plt.title('Calcium simulation')
