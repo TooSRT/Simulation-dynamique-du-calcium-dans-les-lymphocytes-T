@@ -8,14 +8,14 @@ import matplotlib.pyplot as plt
 
 #Numérotation correspondent à celles de l'article 
 
-#Unités utilisés : µM (mole) / mm (mètre) / s (secondes) / mV (Volt) / mA (Ampère) / mS (Siemens) / mF (Farad)
+#Unités utilisés : µM (mole) / µm (mètre) / s (secondes) / mV (Volt) / mA (Ampère) / mS (Siemens) / mF (Farad)
 
 class Parameters_system_ODE:
     def __init__(self):
         #-------Constantes du tableau------
         self.dict_params = {}
         #Geometry
-        self.dict_params["Rcell"] = 8 #µM
+        self.dict_params["Rcell"] = 8 #µm
         self.dict_params["fR"] = 0.25
         self.dict_params["fV"] = 0.01
         self.dict_params["fA"] = 30
@@ -150,7 +150,7 @@ def ODE_sys(t, Y, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, delta
     dC_dt = -1/(zCA*(Faraday*(1 + B_C))) * (Xi*rho_PMCA*I_PMCA + Xi*rho_CRAC*I_CRAC + Xi_ERC*rho_SERCA*I_SERCA + Xi_ERC*rho_IP3R*I_IP3R)
     dC_ER_dt = Xi_ER*(rho_SERCA*I_SERCA + rho_IP3R*I_IP3R)/(zCA*(Faraday*(1 + B_CER)))       # (4)
     dP_dt = beta_p * Hill_function(C,Cp,n_p)*t - gamma_p*P         # (7) 
-    drho_CRAC_dt = (rho_CRAC_barre - rho_CRAC )/ tau_CRAC    #(24) secondes pour 5
+    drho_CRAC_dt = (rho_CRAC_barre - rho_CRAC )/ tau_CRAC    #(24)
     dg_IP3R_dt = (g_IP3R_max*Hill_function(C,C_IP3R_act,n_IP3R_act) - g_IP3R) /tau_IP3R     # (29)
     dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, n_IP3R_inh) - h_IP3R)/theta      # (29)
     dg_PMCA_dt = (Hill_function(C,C_PMCA,2) - g_PMCA)/tau_PMCA      # (31)
