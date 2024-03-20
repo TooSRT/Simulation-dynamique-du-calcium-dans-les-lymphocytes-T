@@ -32,10 +32,10 @@ class Parameters_system_ODE:
         self.dict_params["delta_V_C_ER"] = 63 #mv
 
         #Calcium buffer: µM
-        self.dict_params["b0"] = 100
-        self.dict_params["Kb"] = 0.1
-        self.dict_params["b_ER0"] = 30e3
-        self.dict_params["K_ERb"] = 0.1e3
+        self.dict_params["b0"] = 100 #µM
+        self.dict_params["Kb"] = 0.1 #µM
+        self.dict_params["b_ER0"] = 30e3 #µM
+        self.dict_params["K_ERb"] = 0.1e3 #µM
 
         #Second messengers: µM
         self.dict_params["P0"] = 8.7e-3 #µM
