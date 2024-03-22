@@ -44,13 +44,13 @@ class Parameters_system_ODE:
         self.dict_params["Cp"] = 0.5e3 #nM
         self.dict_params["n_p"] = 1 #Pas d'unité
 
-        #Densités: µm^2
-        self.dict_params["rho_IP3R"] = 11.35
-        self.dict_params["rho_SERCA"] = 700
-        self.dict_params["rho_PMCA"]= 68.57
-        self.dict_params["rho_CRAC0"] = 0.6
-        self.dict_params["rho_CRAC_pos"] = 3.9
-        self.dict_params["rho_CRAC_neg"] = 0.5115
+        #Densités surfacique: C/dm^2 
+        self.dict_params["rho_IP3R"] = 11.35e10
+        self.dict_params["rho_SERCA"] = 700e10
+        self.dict_params["rho_PMCA"]= 68.57e10
+        self.dict_params["rho_CRAC0"] = 0.6e10
+        self.dict_params["rho_CRAC_pos"] = 3.9e10
+        self.dict_params["rho_CRAC_neg"] = 0.5115e10
         
         #-------Déterminations de constantes--------
         self.dict_params["Faraday"] = 96485.33212e-9 #Faraday constant C/nmol
@@ -62,7 +62,7 @@ class Parameters_system_ODE:
         self.dict_params["V_ER_tilde"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 *self.dict_params["fV"] #(21)
         self.dict_params["A_ER"] = 4*np.pi*self.dict_params["fA"]*(3*self.dict_params["V_ER_tilde"]/4*np.pi)**(2./3.) #(22)
 
-        self.dict_params["Xi"] = self.dict_params["Acell"]/self.dict_params["Vcyt"] #(16) dm^2 à revoir
+        self.dict_params["Xi"] = self.dict_params["Acell"]/self.dict_params["Vcyt"] #(16) dm^2 
         self.dict_params["Xi_ER"] = self.dict_params["A_ER"]/self.dict_params["Vcyt"]   #(17)
         self.dict_params["Xi_ERC"] = self.dict_params["A_ER"]/self.dict_params["V_ER_tilde"] #(19)
         
@@ -103,7 +103,7 @@ class Calcium_simulation:
         
     def initial_conditions(self):
     
-        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], 0.,  0., 0. ] # retour d'une array de la taille de la solution (donc 7)
+        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], 1.,  3., 4. ] # retour d'une array de la taille de la solution (donc 7)
  
 # Not part of class    
 
@@ -151,7 +151,6 @@ def ODE_sys(t, Y,C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, de
     #--------Système d'ODE--------
     dC_dt = -1/(zCA*(Faraday*(1 + B_C))) * (Xi*rho_PMCA*I_PMCA + Xi*rho_CRAC*I_CRAC + Xi_ERC*rho_SERCA*I_SERCA + Xi_ERC*rho_IP3R*I_IP3R)
     dC_ER_dt = Xi_ER*(rho_SERCA*I_SERCA + rho_IP3R*I_IP3R)/(zCA*(Faraday*(1 + B_CER)))       # (4)
-    print(dC_ER_dt)
     dP_dt = beta_p * Hill_function(C,Cp,n_p)*t - gamma_p*P         # (7) 
     drho_CRAC_dt = (rho_CRAC_barre - rho_CRAC )/ tau_CRAC    #(24)
     dg_IP3R_dt = (g_IP3R_max*Hill_function(C,C_IP3R_act,n_IP3R_act) - g_IP3R) /tau_IP3R     # (29)
