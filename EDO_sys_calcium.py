@@ -44,20 +44,20 @@ class Parameters_system_ODE:
         self.dict_params["Cp"] = 0.5e3 #nM
         self.dict_params["n_p"] = 1 #Pas d'unité
 
-        #Densités surfacique: C/dm^2 
-        self.dict_params["rho_IP3R"] = 11.35e10
-        self.dict_params["rho_SERCA"] = 700e10
-        self.dict_params["rho_PMCA"]= 68.57e10
-        self.dict_params["rho_CRAC0"] = 0.6e10
-        self.dict_params["rho_CRAC_pos"] = 3.9e10
-        self.dict_params["rho_CRAC_neg"] = 0.5115e10
+        #Densités surfacique: C/µm^2 = C/dm^2 * e10 = A.s/dm^3 * e10 = mA.s/dm^3 * e13
+        self.dict_params["rho_IP3R"] = 11.35e13
+        self.dict_params["rho_SERCA"] = 700e13
+        self.dict_params["rho_PMCA"]= 68.57e13
+        self.dict_params["rho_CRAC0"] = 0.6e13
+        self.dict_params["rho_CRAC_pos"] = 3.9e13
+        self.dict_params["rho_CRAC_neg"] = 0.5115e13
         
         #-------Déterminations de constantes--------
-        self.dict_params["Faraday"] = 96485.33212e-9 #Faraday constant C/nmol
-        self.dict_params["R_cte"] = 8.315e-7 #Molar gaz constant kg.dm^2/(s^2.K.nmol) (9)
+        self.dict_params["Faraday"] = 96485.33212e-3 #Faraday constant C/mol =  mA.s/nmol * e-3
+        self.dict_params["R_cte"] = 8.315e-7 #Molar gaz constant J/(K.mol) = kg.dm^2/(s^2.K.nmol) * e-7 (9)
         self.dict_params["zCA"] = 2. #Pas d'unité
         self.dict_params["V_C_barre"] = 50 #mV (9)
-        self.dict_params["Acell"] = 804.2e-10 #dm^2
+        self.dict_params["Acell"] = 804.2e-10 # µm^2 = dm^2 * e-10
 
         self.dict_params["Vcyt"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 * (1-self.dict_params["fV"]-self.dict_params["fR"]**3) #(20)
         self.dict_params["V_ER_tilde"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 *self.dict_params["fV"] #(21)
@@ -74,7 +74,7 @@ class Parameters_system_ODE:
         self.dict_params["tau_IP3R"] = 0.1 #s
         
         self.dict_params["theta"] = 0.3 #s (29)
-        self.dict_params["n_IP3R_inh"] = 3.9 # #Pas d'unité(27)
+        self.dict_params["n_IP3R_inh"] = 3.9 #Pas d'unité (27)
 
         self.dict_params["C_PMCA"] = 0.1e3 #nM
         self.dict_params["C_IP3R_inh_barre"] = 52e3 #nM
@@ -104,7 +104,7 @@ class Calcium_simulation:
         
     def initial_conditions(self):
     
-        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], 1.,  3., 4. ] # retour d'une array de la taille de la solution (donc 7)
+        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], 0.,  0., 0. ] # retour d'une array de la taille de la solution (donc 7)
  
 # Not part of class    
 
