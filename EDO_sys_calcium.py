@@ -54,6 +54,7 @@ class Parameters_system_ODE:
         
         #-------Déterminations de constantes--------
         self.dict_params["Faraday"] = 96485.33212e-9 #Faraday constant C/nmol
+        self.dict_params["R_cte"] = 8.315e-7 #Molar gaz constant kg.dm^2/(s^2.K.nmol) (9)
         self.dict_params["zCA"] = 2. #Pas d'unité
         self.dict_params["V_C_barre"] = 50 #mV (9)
         self.dict_params["Acell"] = 804.2e-10 #dm^2
@@ -119,7 +120,7 @@ def fC(b0,C,Kb):  #fraction of free calcium (3)
     
     
 
-def ODE_sys(t, Y,C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, delta_V_C_ER, rho_CRAC_neg, rho_CRAC_pos, V_ER,Xi, rho_PMCA, Xi_ERC, rho_SERCA, rho_IP3R, Xi_ER, beta_p , Cp, n_p, gamma_p, g_IP3R_max, C_IP3R_act, n_IP3R_act, tau_IP3R, n_IP3R_inh, theta , C_PMCA, tau_PMCA, C_IP3R_inh_barre, tau_CRAC, I_SERCA_BARRE, I_PMCA_BARRE, g_CRAC_BARRE, g_IP3R_barre, C_CRAC): 
+def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Faraday, delta_V_C_ER, rho_CRAC_neg, rho_CRAC_pos, V_ER,Xi, rho_PMCA, Xi_ERC, rho_SERCA, rho_IP3R, Xi_ER, beta_p , Cp, n_p, gamma_p, g_IP3R_max, C_IP3R_act, n_IP3R_act, tau_IP3R, n_IP3R_inh, theta , C_PMCA, tau_PMCA, C_IP3R_inh_barre, tau_CRAC, I_SERCA_BARRE, I_PMCA_BARRE, g_CRAC_BARRE, g_IP3R_barre, C_CRAC): 
     #-------Variables du système-------
     C = Y[0]
     C_ER = Y[1]
@@ -138,7 +139,7 @@ def ODE_sys(t, Y,C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, zCA, Faraday, de
     I_SERCA = I_SERCA_BARRE * Hill_function(C, 0.4e3, 2) #(32)
     I_PMCA = I_PMCA_BARRE * g_PMCA #(30) 
     I_CRAC = g_CRAC_BARRE*(V0 - V_C_barre)    #(23) car V=V0
-    V_C_ER_barre = 8.315*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER #(9) revoir le 8.315
+    V_C_ER_barre = R_cte*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER #(9) 
     
     rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,C_CRAC, 4.2)) #(25) 
     g_IP3R = g_IP3R_max * Hill_function(C0, C_IP3R_act, n_IP3R_act) # (27) 
@@ -166,7 +167,7 @@ def main():
     T = 15 # final time
     
     calc_sim = Calcium_simulation()
-    sol = solve_ivp(ODE_sys, [0, T], calc_sim.Y ,method= calc_sim.method_integ, args= (calc_sim.params.dict_params["C0"],calc_sim.params.dict_params["b0"], calc_sim.params.dict_params["Kb"],   calc_sim.params.dict_params["b_ER0"], calc_sim.params.dict_params["K_ERb"],  calc_sim.params.dict_params["V0"],  calc_sim.params.dict_params["V_C_barre"],  calc_sim.params.dict_params["Temp"],  calc_sim.params.dict_params["zCA"],  calc_sim.params.dict_params["Faraday"],  calc_sim.params.dict_params["delta_V_C_ER"],  calc_sim.params.dict_params["rho_CRAC_neg"],  calc_sim.params.dict_params["rho_CRAC_pos"],  calc_sim.params.dict_params["V_ER"], calc_sim.params.dict_params["Xi"],  calc_sim.params.dict_params["rho_PMCA"],  calc_sim.params.dict_params["Xi_ERC"],  calc_sim.params.dict_params["rho_SERCA"],  calc_sim.params.dict_params["rho_IP3R"],  calc_sim.params.dict_params["Xi_ER"],  calc_sim.params.dict_params["beta_p"] ,  calc_sim.params.dict_params["Cp"],  calc_sim.params.dict_params["n_p"],  calc_sim.params.dict_params["gamma_p"],  calc_sim.params.dict_params["g_IP3R_max"],  calc_sim.params.dict_params["C_IP3R_act"],  calc_sim.params.dict_params["n_IP3R_act"],  calc_sim.params.dict_params["tau_IP3R"],  calc_sim.params.dict_params["n_IP3R_inh"],  calc_sim.params.dict_params["theta"] ,  calc_sim.params.dict_params["C_PMCA"],  calc_sim.params.dict_params["tau_PMCA"] ,calc_sim.params.dict_params["C_IP3R_inh_barre"], calc_sim.params.dict_params["tau_CRAC"], calc_sim.params.dict_params["I_SERCA_BARRE"], calc_sim.params.dict_params["I_PMCA_BARRE"], calc_sim.params.dict_params["g_PMCA_BARRE"], calc_sim.params.dict_params["g_IP3R_barre"], calc_sim.params.dict_params["C_CRAC"]),  dense_output=True)
+    sol = solve_ivp(ODE_sys, [0, T], calc_sim.Y ,method= calc_sim.method_integ, args= (calc_sim.params.dict_params["C0"],calc_sim.params.dict_params["b0"], calc_sim.params.dict_params["Kb"],   calc_sim.params.dict_params["b_ER0"], calc_sim.params.dict_params["K_ERb"],  calc_sim.params.dict_params["V0"],  calc_sim.params.dict_params["V_C_barre"],  calc_sim.params.dict_params["Temp"],  calc_sim.params.dict_params["zCA"],  calc_sim.params.dict_params["Faraday"],  calc_sim.params.dict_params["delta_V_C_ER"],  calc_sim.params.dict_params["rho_CRAC_neg"],  calc_sim.params.dict_params["rho_CRAC_pos"],  calc_sim.params.dict_params["V_ER"], calc_sim.params.dict_params["Xi"],  calc_sim.params.dict_params["rho_PMCA"],  calc_sim.params.dict_params["Xi_ERC"],  calc_sim.params.dict_params["rho_SERCA"],  calc_sim.params.dict_params["rho_IP3R"],  calc_sim.params.dict_params["Xi_ER"],  calc_sim.params.dict_params["beta_p"] ,  calc_sim.params.dict_params["Cp"],  calc_sim.params.dict_params["n_p"],  calc_sim.params.dict_params["gamma_p"],  calc_sim.params.dict_params["g_IP3R_max"],  calc_sim.params.dict_params["C_IP3R_act"],  calc_sim.params.dict_params["n_IP3R_act"],  calc_sim.params.dict_params["tau_IP3R"],  calc_sim.params.dict_params["n_IP3R_inh"],  calc_sim.params.dict_params["theta"] ,  calc_sim.params.dict_params["C_PMCA"],  calc_sim.params.dict_params["tau_PMCA"] ,calc_sim.params.dict_params["C_IP3R_inh_barre"], calc_sim.params.dict_params["tau_CRAC"], calc_sim.params.dict_params["I_SERCA_BARRE"], calc_sim.params.dict_params["I_PMCA_BARRE"], calc_sim.params.dict_params["g_PMCA_BARRE"], calc_sim.params.dict_params["g_IP3R_barre"], calc_sim.params.dict_params["C_CRAC"], calc_sim.params.dict_params["R_cte"]),  dense_output=True)
     
 
     t = np.linspace(0, 15, 300)
