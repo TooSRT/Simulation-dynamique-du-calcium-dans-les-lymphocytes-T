@@ -69,6 +69,7 @@ class Parameters_system_ODE:
         
         #--------Constantes--------     
         self.dict_params["tau_IP3R"] = 0.1 #s
+        
         self.dict_params["theta"] = 0.3 #s (29)
         self.dict_params["tau_PMCA"] = 50 #s (31)
         self.dict_params["tau_CRAC"] = 5 #s (24)
@@ -109,9 +110,8 @@ class Calcium_simulation:
         self.t = 0. # time
         
     def initial_conditions(self):
-        C_IP3R_inh = self.params.dict_params["C_IP3R_inh_barre"] * Hill_function(self.params.dict_params["P0"], self.params.dict_params["P_IP3R_C"], self.params.dict_params["n_IP3R_C"])
     
-        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], self.params.dict_params["g_IP3R_max"] * Hill_function(self.params.dict_params["C0"], self.params.dict_params["C_IP3R_act"], self.params.dict_params["n_IP3R_act"]),  Hill_function(C_IP3R_inh, self.params.dict_params["C0"], self.params.dict_params["n_IP3R_inh"]),  Hill_function(self.params.dict_params["C0"],self.params.dict_params["C_PMCA"], self.params.dict_params["n_PMCA"])  ] # retour d'une array de la taille de la solution (donc 7)
+        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], 0.,  0., 0. ] # retour d'une array de la taille de la solution (donc 7)
  
 # Not part of class    
 
@@ -148,8 +148,10 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
     I_CRAC = g_CRAC_BARRE*(V0 - V_C_barre)    #(23) car V=V0
     V_C_ER_barre = R_cte*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER #(9) 
     
-    rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,C_CRAC, n_CRAC)) #(25) 
-    C_IP3R_inh = C_IP3R_inh_barre * Hill_function(P, P_IP3R_C, n_IP3R_C)
+    rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,C_CRAC, 4.2)) #(25) 
+    g_IP3R = g_IP3R_max * Hill_function(C0, C_IP3R_act, n_IP3R_act) # (27) 
+    C_IP3R_inh = C_IP3R_inh_barre * Hill_function(P, P_IP3R_C, 4)
+    h_IP3R = Hill_function(C_IP3R_inh, C0, 3.9)
     I_IP3R = g_IP3R_barre *g_IP3R*h_IP3R*(V0 - V_ER - V_C_ER_barre) # (28) 
 
     
