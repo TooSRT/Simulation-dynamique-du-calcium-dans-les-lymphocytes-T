@@ -72,6 +72,7 @@ class Parameters_system_ODE:
         self.dict_params["C_IP3R_act"] = 0.21e-12 #nmol/µm^3
         self.dict_params["n_IP3R_act"] = 1.9 #Pas d'unité
         self.dict_params["tau_IP3R"] = 0.1 #s
+        self.dict_params["n_PMCA"] = 2. #s
         
         self.dict_params["theta"] = 0.3 #s (29)
         self.dict_params["n_IP3R_inh"] = 3.9 #Pas d'unité (27)
@@ -98,15 +99,16 @@ class Calcium_simulation:
         Le constructeur permets de remplir les paramêtres ainsi que de spécifier l'intégrateur temporel.
         """
         self.params = Parameters_system_ODE()
-        self.method_integ = "RK45"
+        self.method_integ = "RK23"
         
         self.Y = self.initial_conditions() # solution des EDOs initialisée avec les conditions initiales 
         
         self.t = 0. # time
         
     def initial_conditions(self):
+        C_IP3R_inh = self.params.dict_params["C_IP3R_inh_barre"] * Hill_function(self.params.dict_params["P0"], 0.05e3, 4)
     
-        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], 0.,  0., 0. ] # retour d'une array de la taille de la solution (donc 7)
+        return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], self.params.dict_params["g_IP3R_max"] * Hill_function(self.params.dict_params["C0"], self.params.dict_params["C_IP3R_act"], self.params.dict_params["n_IP3R_act"]),  Hill_function(C_IP3R_inh, self.params.dict_params["C0"], 3.9),  Hill_function(self.params.dict_params["C0"],self.params.dict_params["C_PMCA"], self.params.dict_params["n_PMCA"])  ] # retour d'une array de la taille de la solution (donc 7)
  
 # Not part of class    
 
@@ -144,9 +146,9 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
     V_C_ER_barre = R_cte*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER #(9) 
     
     rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,C_CRAC, 4.2)) #(25) 
-    g_IP3R = g_IP3R_max * Hill_function(C0, C_IP3R_act, n_IP3R_act) # (27) 
-    C_IP3R_inh = C_IP3R_inh_barre * Hill_function(P, P_IP3R_C, 4)
-    h_IP3R = Hill_function(C_IP3R_inh, C0, 3.9)
+    #g_IP3R = g_IP3R_max * Hill_function(C0, C_IP3R_act, n_IP3R_act) # (27) 
+    C_IP3R_inh = C_IP3R_inh_barre * Hill_function(P, 0.05e3, 4)
+    #h_IP3R = Hill_function(C_IP3R_inh, C0, 3.9)
     I_IP3R = g_IP3R_barre *g_IP3R*h_IP3R*(V0 - V_ER - V_C_ER_barre) # (28) 
 
     
@@ -166,13 +168,13 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
 def main():
     """ script part
     """
-    T = 15 # final time
-    
+    T = 1 # final time
+    # comment
     calc_sim = Calcium_simulation()
     sol = solve_ivp(ODE_sys, [0, T], calc_sim.Y ,method= calc_sim.method_integ, args= (calc_sim.params.dict_params["C0"],calc_sim.params.dict_params["b0"], calc_sim.params.dict_params["Kb"],   calc_sim.params.dict_params["b_ER0"], calc_sim.params.dict_params["K_ERb"],  calc_sim.params.dict_params["V0"],  calc_sim.params.dict_params["V_C_barre"],  calc_sim.params.dict_params["Temp"],  calc_sim.params.dict_params["zCA"],  calc_sim.params.dict_params["Faraday"],  calc_sim.params.dict_params["delta_V_C_ER"],  calc_sim.params.dict_params["rho_CRAC_neg"],  calc_sim.params.dict_params["rho_CRAC_pos"],  calc_sim.params.dict_params["V_ER"], calc_sim.params.dict_params["Xi"],  calc_sim.params.dict_params["rho_PMCA"],  calc_sim.params.dict_params["Xi_ERC"],  calc_sim.params.dict_params["rho_SERCA"],  calc_sim.params.dict_params["rho_IP3R"],  calc_sim.params.dict_params["Xi_ER"],  calc_sim.params.dict_params["beta_p"] ,  calc_sim.params.dict_params["Cp"],  calc_sim.params.dict_params["n_p"],  calc_sim.params.dict_params["gamma_p"],  calc_sim.params.dict_params["g_IP3R_max"],  calc_sim.params.dict_params["C_IP3R_act"],  calc_sim.params.dict_params["n_IP3R_act"],  calc_sim.params.dict_params["tau_IP3R"],  calc_sim.params.dict_params["n_IP3R_inh"],  calc_sim.params.dict_params["theta"] ,  calc_sim.params.dict_params["C_PMCA"],  calc_sim.params.dict_params["tau_PMCA"] ,calc_sim.params.dict_params["C_IP3R_inh_barre"], calc_sim.params.dict_params["tau_CRAC"], calc_sim.params.dict_params["I_SERCA_BARRE"], calc_sim.params.dict_params["I_PMCA_BARRE"], calc_sim.params.dict_params["g_PMCA_BARRE"], calc_sim.params.dict_params["g_IP3R_barre"], calc_sim.params.dict_params["C_CRAC"], calc_sim.params.dict_params["R_cte"], calc_sim.params.dict_params['C_SERCA'], calc_sim.params.dict_params['P_IP3R_C']),  dense_output=True)
     
 
-    t = np.linspace(0, 15, 300)
+    t = np.linspace(0, T, 300)
     z = sol.sol(t)
     plt.plot(t, z.T)
     plt.xlabel('t')
