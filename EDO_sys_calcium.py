@@ -148,10 +148,10 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
     I_CRAC = g_CRAC_BARRE*(V0 - V_C_barre)    #(23) car V=V0
     V_C_ER_barre = R_cte*Temp*np.log(C_ER/C)/(zCA*Faraday) - delta_V_C_ER #(9) 
     
-    rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,C_CRAC, 4.2)) #(25) 
+    rho_CRAC_barre = rho_CRAC_neg  + (rho_CRAC_pos - rho_CRAC_neg)*(1-Hill_function(C_ER,C_CRAC, n_CRAC)) #(25) 
     g_IP3R = g_IP3R_max * Hill_function(C0, C_IP3R_act, n_IP3R_act) # (27) 
-    C_IP3R_inh = C_IP3R_inh_barre * Hill_function(P, P_IP3R_C, 4)
-    h_IP3R = Hill_function(C_IP3R_inh, C0, 3.9)
+    C_IP3R_inh = C_IP3R_inh_barre * Hill_function(P, P_IP3R_C, n_IP3R_C)
+    h_IP3R = Hill_function(C_IP3R_inh, C0, n_IP3R_inh)
     I_IP3R = g_IP3R_barre *g_IP3R*h_IP3R*(V0 - V_ER - V_C_ER_barre) # (28) 
 
     
