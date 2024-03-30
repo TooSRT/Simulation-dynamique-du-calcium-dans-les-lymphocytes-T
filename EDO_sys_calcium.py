@@ -19,7 +19,7 @@ class Parameters_system_ODE:
         self.dict_params["fR"] = 0.25 #Pas d'unité
         self.dict_params["fV"] = 0.01
         self.dict_params["fA"] = 30
-        self.dict_params["Cm"] = 28e-6 #nF/µm^2
+        self.dict_params["Cm"] = 28e-2 #mF/dm^2
 
         #Ions and potentials:
         self.dict_params["Temp"] = 310 #Kelvin
@@ -52,9 +52,9 @@ class Parameters_system_ODE:
         self.dict_params["rho_CRAC_pos"] = 3.9
         self.dict_params["rho_CRAC_neg"] = 0.5115
         
-        #-------Détermination de constantes--------
-        self.dict_params["Faraday"] = 96485.33212e-9 #Faraday constant C/mol =  nA.s/nmol * e-9
-        self.dict_params["R_cte"] = 8.315e-3 #Molar gaz constant J/(K.mol) = kg.µm^2/(s^2.K.nmol) * e-3 (9)
+        #-------Déterminations de constantes--------
+        self.dict_params["Faraday"] = 96485.33212e-3 #Faraday constant C/mol =  mA.s/nmol * e-3
+        self.dict_params["R_cte"] = 8.315e-7 #Molar gaz constant J/(K.mol) = kg.dm^2/(s^2.K.nmol) * e-7 (9)
         self.dict_params["zCA"] = 2. #Pas d'unité
         self.dict_params["V_C_barre"] = 50 #mV (9)
         self.dict_params["Acell"] = 804.2 #µm^2
@@ -73,24 +73,9 @@ class Parameters_system_ODE:
         self.dict_params["theta"] = 0.3 #s (29)
         self.dict_params["tau_PMCA"] = 50 #s (31)
         self.dict_params["tau_CRAC"] = 5 #s (24)
-
-        #Pas d'unité
-        self.dict_params["n_IP3R_act"] = 1.9 
-        self.dict_params["n_PMCA"] = 2. 
-        self.dict_params["n_IP3R_inh"] = 3.9 #(27)
-        self.dict_params["n_CRAC"] = 4.2 #(25)
-        self.dict_params['n_IP3R_C'] = 4 #(27)
-
-        self.dict_params["C_IP3R_act"] = 0.21e-12 #nmol/µm^3
-        self.dict_params["C_PMCA"] = 0.1e-12 #nmol/µm^3
-        self.dict_params["C_IP3R_inh_barre"] = 52e-12 #nmol/µm^3
-        self.dict_params["C_CRAC"] = 169e-12 #nmol/µm^3 (25)
-        self.dict_params["C_SERCA"] = 0.4e-12 #nmol/µm^3 (32)
-        self.dict_params["P_IP3R_C"] = 0.05e-12 #nmol/µm^3 (27)
         
-        self.dict_params["I_SERCA_BARRE"] = 3e-9 #nA (32)
-        self.dict_params["I_PMCA_BARRE"] = 1e-7 #nA (30)
-        self.dict_params["g_IP3R_max"] = 0.81e-9 #Unité non précisé sur l'article ? mS
+        self.dict_params["I_SERCA_BARRE"] = 3e-15 #mA (32)
+        self.dict_params["I_PMCA_BARRE"] = 1e-13 #mA (30)
         self.dict_params["g_PMCA_BARRE"] = 2e-12 #mS (23)
         self.dict_params["g_IP3R_barre"] = 0.064e-9 #mS (28)
 
