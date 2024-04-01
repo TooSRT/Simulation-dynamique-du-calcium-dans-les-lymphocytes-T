@@ -54,7 +54,7 @@ class Parameters_system_ODE:
         self.dict_params["rho_CRAC_neg"] = 0.5115
         
         #-------Détermination de constantes--------
-        self.dict_params["Faraday"] = 96485.33212e-9 #Faraday constant C/mol =  nA.s/nmol * e-3
+        self.dict_params["Faraday"] = 96485.33212 #Faraday constant C/mol =  nA.s/nmol 
         self.dict_params["R_cte"] = 8.315e-3 #Molar gaz constant J/(K.mol) = kg.µm^2/(s^2.K.nmol) * e-3 (9)
         self.dict_params["zCA"] = 2. #Pas d'unité
         self.dict_params["V_C_barre"] = 50 #mV (9)
