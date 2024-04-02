@@ -7,54 +7,54 @@ import matplotlib.pyplot as plt
 
 #Numérotations correspondent à celles de l'article 
 
-#Unités utilisés : nmol/dm^3 = nM (nanomolar) = nmol/µm^3 e-15 / dm (mètre) / s (secondes) / nV (Volt) / nA (Ampère) / nS (Siemens) / nF (Farad) 
+#Unités utilisés : nmol/dm^3 = nM (nanomolar) = nmol/µm^3 e-15 / µm (mètre) / s (secondes) / nV (Volt) / nA (Ampère) / nS (Siemens) / nF (Farad) 
 
 class Parameters_system_ODE:
     def __init__(self):
         #-------Constantes du tableau------
         self.dict_params = {}
         #Geometry
-        self.dict_params["Rcell"] = 8e-5 #dm
+        self.dict_params["Rcell"] = 8 #µm
         self.dict_params["fR"] = 0.25 #Pas d'unité
         self.dict_params["fV"] = 0.01
         self.dict_params["fA"] = 30
-        self.dict_params["Cm"] = 28e4 #nF/dm^2
-        self.dict_params["Acell"] = 804.2e-10 #dm^2
+        self.dict_params["Cm"] = 28e-6 #nF/µm^2
+        self.dict_params["Acell"] = 804.2 #µm^2
 
         #Ions and potentials:
         self.dict_params["Temp"] = 310 #Kelvin
         self.dict_params["V0"] = self.dict_params["V_ER"] = -60e6 #nV #V=V0=V_ER
         self.dict_params["V_ER0"] = -60e6 #nV
-        self.dict_params["C0"] = 0.1e3 #nmol/dm^3
-        self.dict_params["C_ER0"] = 0.4e6 #nmol/dm^3
-        self.dict_params["C_ext"] = 2e6 #nmol/dm^3
+        self.dict_params["C0"] = 0.1e-12 #nmol/µm^3
+        self.dict_params["C_ER0"] = 0.4e-9 #nmol/µm^3
+        self.dict_params["C_ext"] = 2e-9 #nmol/µm^3
         self.dict_params["delta_V_C"] = 78e6 #nV
         self.dict_params["delta_V_C_ER"] = 63e6 #nV
 
         #Calcium buffer: nM
-        self.dict_params["b0"] = 100e3 #nmol/dm^3
-        self.dict_params["Kb"] = 0.1e3 #nmol/dm^3
-        self.dict_params["b_ER0"] = 30e3 #nmol/dm^3
-        self.dict_params["K_ERb"] = 0.1e3 #nmol/dm^3
+        self.dict_params["b0"] = 100e-12 #nmol/µm^3
+        self.dict_params["Kb"] = 0.1e-12 #nmol/µm^3
+        self.dict_params["b_ER0"] = 30e-9 #nmol/µm^3
+        self.dict_params["K_ERb"] = 0.1e-9 #nmol/µm^3
 
         #Second messengers: nM
-        self.dict_params["P0"] = 8.7 #nmol/dm^3
-        self.dict_params["beta_p"] = 0.6 #nmol/(µm^3.s)
-        self.dict_params["gamma_p"] = 0.01149 #nmol/µm^3.s
-        self.dict_params["Cp"] = 0.5e3 #nmol/µm^3
+        self.dict_params["P0"] = 8.7e-15 #nmol/µm^3
+        self.dict_params["beta_p"] = 0.6e-15 #nmol/(µm^3.s)
+        self.dict_params["gamma_p"] = 0.01149e-15 #nmol/µm^3.s
+        self.dict_params["Cp"] = 0.5e-12 #nmol/µm^3
         self.dict_params["n_p"] = 1 #Pas d'unité
 
-        #Densités surfacique: dm^2 
-        self.dict_params["rho_IP3R"] = 11.35e-10
-        self.dict_params["rho_SERCA"] = 700e-10
-        self.dict_params["rho_PMCA"]= 68.57e-10
-        self.dict_params["rho_CRAC0"] = 0.6e-10
-        self.dict_params["rho_CRAC_pos"] = 3.9e-10
-        self.dict_params["rho_CRAC_neg"] = 0.5115e-10
+        #Densités surfacique: µm^2 
+        self.dict_params["rho_IP3R"] = 11.35
+        self.dict_params["rho_SERCA"] = 700
+        self.dict_params["rho_PMCA"]= 68.57
+        self.dict_params["rho_CRAC0"] = 0.6
+        self.dict_params["rho_CRAC_pos"] = 3.9
+        self.dict_params["rho_CRAC_neg"] = 0.5115
         
         #-------Détermination de constantes--------
         self.dict_params["Faraday"] = 96485.33212 #Faraday constant C/mol =  nA.s/nmol 
-        self.dict_params["R_cte"] = 8.315e7 #Molar gaz constant J/(K.mol) = kg.dm^2/(s^2.K.nmol) * e-7 (9)
+        self.dict_params["R_cte"] = 8.315e-3 #Molar gaz constant J/(K.mol) = kg.µm^2/(s^2.K.nmol) * e-3 (9)
         self.dict_params["zCA"] = 2. #Pas d'unité
         self.dict_params["V_C_barre"] = 50e6 #nV (9)
 
@@ -62,15 +62,12 @@ class Parameters_system_ODE:
         self.dict_params["V_ER_tilde"] = 4/3 * np.pi * self.dict_params["Rcell"]**3 *self.dict_params["fV"] #(21)
         self.dict_params["A_ER"] = 4*np.pi*self.dict_params["fA"]*(3*self.dict_params["V_ER_tilde"]/4*np.pi)**(2./3.) #(22)
 
-        self.dict_params["Xi"] = self.dict_params["Acell"]/self.dict_params["Vcyt"] #(16) dm^2 
+        self.dict_params["Xi"] = self.dict_params["Acell"]/self.dict_params["Vcyt"] #(16) µm^2 
         self.dict_params["Xi_ER"] = self.dict_params["A_ER"]/self.dict_params["Vcyt"]   #(17)
         self.dict_params["Xi_ERC"] = self.dict_params["A_ER"]/self.dict_params["V_ER_tilde"] #(19)
         
 
-         #--------Constantes--------     
-        
-
-         #--------Constantes--------     
+        #--------Constantes--------     
         self.dict_params["tau_IP3R"] = 0.1 #s
         self.dict_params["theta"] = 0.3 #s (29)
         self.dict_params["tau_PMCA"] = 50 #s (31)
@@ -79,26 +76,24 @@ class Parameters_system_ODE:
         #Pas d'unité
         self.dict_params["n_IP3R_act"] = 1.9 
         self.dict_params["n_PMCA"] = 2. #(31)
-        self.dict_params["n_PMCA"] = 2. #(31)
         self.dict_params["n_IP3R_inh"] = 3.9 #(27)
         self.dict_params["n_CRAC"] = 4.2 #(25)
         self.dict_params['n_IP3R_C'] = 4. #(27)
         self.dict_params['n_SERCA'] = 2. #(32)
 
-        # nmol/dm^3
-        self.dict_params["C_IP3R_act"] = 0.21e3 #nmol/dm^3
-        self.dict_params["C_PMCA"] = 0.1e3 #nmol/dm^3
-        self.dict_params["C_IP3R_inh_barre"] = 52e3 #nmol/dm^3
-        self.dict_params["C_CRAC"] = 169e3 #nmol/dm^3 (25)
-        self.dict_params["C_SERCA"] = 0.4e3 #nmol/dm^3 (32)
-        self.dict_params["P_IP3R_C"] = 0.05e3 #nmol/dm^3 (27)
+        # nmol/µm^3
+        self.dict_params["C_IP3R_act"] = 0.21e-12 #nmol/µm^3
+        self.dict_params["C_PMCA"] = 0.1e-12 #nmol/µm^3
+        self.dict_params["C_IP3R_inh_barre"] = 52e-12 #nmol/µm^3
+        self.dict_params["C_CRAC"] = 169e-12 #nmol/µm^3 (25)
+        self.dict_params["C_SERCA"] = 0.4e-12 #nmol/µm^3 (32)
+        self.dict_params["P_IP3R_C"] = 0.05e-12 #nmol/µm^3 (27)
         
         self.dict_params["I_SERCA_BARRE"] = 3e-9 #nA (32)
         self.dict_params["I_PMCA_BARRE"] = 1e-8 #nA (30)
-        self.dict_params["g_IP3R_max"] = 0.81e-3 #nS
-        self.dict_params["g_CRAC_BARRE"] = 2e-9 #nS (23)
-        self.dict_params["g_IP3R_barre"] = 0.064e-6 #nS (28)
-
+        self.dict_params["g_IP3R_max"] = 0.81e-9 #Unité non précisé sur l'article ? mS
+        self.dict_params["g_CRAC_BARRE"] = 2e-6 #nS (23)
+        self.dict_params["g_IP3R_barre"] = 0.064e-3 #nS (28)
 
 
 class Calcium_simulation:
@@ -110,7 +105,7 @@ class Calcium_simulation:
         Le constructeur permets de remplir les paramêtres ainsi que de spécifier l'intégrateur temporel.
         """
         self.params = Parameters_system_ODE()
-        self.method_integ = "Radau"
+        self.method_integ = "RK23"
         
         self.Y = self.initial_conditions() # solution des EDOs initialisée avec les conditions initiales 
         
@@ -118,7 +113,7 @@ class Calcium_simulation:
         
     def initial_conditions(self):
         C_IP3R_inh = self.params.dict_params["C_IP3R_inh_barre"] * Hill_function(self.params.dict_params["P0"], self.params.dict_params['P_IP3R_C'], self.params.dict_params['n_IP3R_C'])
-
+    
         return [self.params.dict_params["C0"], self.params.dict_params["C_ER0"], self.params.dict_params["P0"], self.params.dict_params["rho_CRAC0"], self.params.dict_params["g_IP3R_max"] * Hill_function(self.params.dict_params["C0"], self.params.dict_params["C_IP3R_act"], self.params.dict_params["n_IP3R_act"]),  Hill_function(C_IP3R_inh, self.params.dict_params["C0"], self.params.dict_params['n_IP3R_inh']),  Hill_function(self.params.dict_params["C0"],self.params.dict_params["C_PMCA"], self.params.dict_params["n_PMCA"])  ] # retour d'une array de la taille de la solution (donc 7)
  
 # Not part of class    
@@ -133,7 +128,7 @@ def BC(b,K,C): #cytosolic calcium-buffer (2)
 def fC(b0,C,Kb):  #fraction of free calcium (3)
     return 1 / ( 1 + b0/(C+Kb) )
     
-    
+
 def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Faraday, delta_V_C_ER, rho_CRAC_neg, rho_CRAC_pos, V_ER,Xi, rho_PMCA, Xi_ERC, rho_SERCA, rho_IP3R, Xi_ER, beta_p , Cp, n_p, gamma_p, g_IP3R_max, C_IP3R_act, n_IP3R_act, tau_IP3R, n_IP3R_inh, theta , C_PMCA, tau_PMCA, C_IP3R_inh_barre, tau_CRAC, I_SERCA_BARRE, I_PMCA_BARRE, g_CRAC_BARRE, g_IP3R_barre, C_CRAC, C_SERCA, P_IP3R_C,n_CRAC, n_IP3R_C, n_SERCA, n_PMCA): 
     #-------Variables du système-------
     C = Y[0]
@@ -148,6 +143,8 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
     B_C = BC(b0,Kb,C)
     B_CER = BC(b_ER0,K_ERb,C_ER)
 
+
+    #Passer les pico-ampère en mili-ampère pour s'adapter au mili-Volt 
     I_SERCA = I_SERCA_BARRE * Hill_function(C, C_SERCA, n_SERCA) #(32)
     I_PMCA = I_PMCA_BARRE * g_PMCA #(30) 
     I_CRAC = g_CRAC_BARRE*(V0 - V_C_barre)    #(23) car V=V0
@@ -158,7 +155,6 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
     I_IP3R = g_IP3R_barre *g_IP3R*h_IP3R*(V0 - V_ER - V_C_ER_barre) # (28) 
 
 
-
     #--------Système d'ODE--------
     dC_dt = -1/(zCA*(Faraday*(1 + B_C))) * (Xi*rho_PMCA*I_PMCA + Xi*rho_CRAC*I_CRAC + Xi_ERC*rho_SERCA*I_SERCA + Xi_ERC*rho_IP3R*I_IP3R)
     dC_ER_dt = Xi_ER*(rho_SERCA*I_SERCA + rho_IP3R*I_IP3R)/(zCA*(Faraday*(1 + B_CER)))       # (4)
@@ -166,7 +162,6 @@ def ODE_sys(t, Y, C0, b0, Kb, b_ER0, K_ERb, V0, V_C_barre, Temp, R_cte, zCA, Far
     drho_CRAC_dt = (rho_CRAC_barre - rho_CRAC )/ tau_CRAC    #(24)
     dg_IP3R_dt = (g_IP3R_max*Hill_function(C,C_IP3R_act,n_IP3R_act) - g_IP3R) /tau_IP3R     # (29)
     dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, n_IP3R_inh) - h_IP3R)/theta      # (29)
-    dg_PMCA_dt = (Hill_function(C,C_PMCA,n_PMCA) - g_PMCA)/tau_PMCA      # (31)
     dg_PMCA_dt = (Hill_function(C,C_PMCA,n_PMCA) - g_PMCA)/tau_PMCA      # (31)
 
     return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt]
@@ -199,6 +194,41 @@ def main():
     
     plt.tight_layout()
     plt.show()
+
+def RK4_pas_adapt(F,yi,ti,tf,delta,hmin,hmax):
+    Y = [yi]
+    T = [ti]
+    htest = hmin #htest à t=0
+    H = [htest] #stockage des pas de temps
+    Y[0], y = yi, yi
+    
+    tn=ti
+    n=0
+    while tn < tf: 
+        k0=F(y)
+        k1=F(y + (htest/2) * k0)
+        k2=F(y + (htest/2) * k1)
+        k3=F(y + htest*k2)
+        
+        phi = y + (htest/3) * (k1 + k2)
+        phi_etoile = y + (htest/6) * (k0 + 2*k1 + 2*k2 + k3)
+        
+        delta_tilde = np.linalg.norm(phi-phi_etoile)/htest
+        
+        hopt = htest * (delta/delta_tilde)**(1/3)
+        hopt = min(max(hopt,hmin),hmax)
+        
+        y = Y[n] + (hopt/6) * (k0 + 2*k1 + 2*k2 + k3)
+        
+        htest = hopt
+        tn += htest
+        n=n+1
+            
+        H.append(htest)
+        T.append(tn)
+        Y.append(y)
+        
+    return T, H, Y
 
 if __name__ == "__main__":
     main()
