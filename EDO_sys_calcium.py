@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 #Numérotation correspondent à celles de l'article 
 
-#Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / mV (Volt) / mA (Ampère) / mS (Siemens) / mF (Farad) 
+#Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / V (Volt) / A (Ampère) / S (Siemens) / F (Farad) 
 
 class Parameters_system_ODE:
     def __init__(self):
@@ -17,7 +17,7 @@ class Parameters_system_ODE:
         self.fR = 0.25 #Pas d'unité
         self.fV = 0.01
         self.fA = 30
-        self.Cm = 28e-5 #F/dm^2
+        self.Cm = 28*1e-5 #F/dm^2
 
         #Ions and potentials:
         self.Temp = 310 #Kelvin
@@ -69,8 +69,8 @@ class Parameters_system_ODE:
         self.g_IP3R_max = 0.81 # C'est une probabilité d'ouverture
         
         self.tau_IP3R = 0.1 #s
-        self.tau_PMCA = 50 #s (31)
-        self.tau_CRAC = 5 #s (24)
+        self.tau_PMCA = 50. #s (31)
+        self.tau_CRAC = 5. #s (24)
         self.theta = 0.3 #s (29)
 
         self.n_IP3R_act = 1.9 #Pas d'unité
@@ -117,7 +117,11 @@ class Calcium_simulation:
                 self.params.rho_CRAC0 ,  
                 self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act),  
                 Hill_function(C_IP3R_inh, self.params.C0, self.params.n_IP3R_inh),  
-                Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA)  ] # retour d'une array de la taille de la solution (donc 7)
+                Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA),
+                self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
+                self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
+                self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre) ] #condition init pour I_CRAC
+    # retour d'une array de la taille de la solution (donc 10)
     
     def functionT(self, t):
         if t < 10:
@@ -128,8 +132,8 @@ class Calcium_simulation:
     
     def ODE_sys(self, t, Y): 
         
-        print("t = " + str(t))
-        print(Y)
+        #print("t = " + str(t))
+        #print(Y)
         #-------Variables du système-------
         C = Y[0]
         C_ER = Y[1]
@@ -138,22 +142,26 @@ class Calcium_simulation:
         g_IP3R = Y[4]
         h_IP3R = Y[5]
         g_PMCA = Y[6]
-        
-        print("Y = " +str(Y))
-        
+        #print("Y = " +str(Y))
 
         #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
         B_C = BC(self.params.b0,self.params.Kb,C)
         B_CER = BC(self.params.b_ER0,self.params.K_ERb,C_ER)
+        C_ext = self.params.C0 * np.exp((self.params.V0-self.params.delta_V_C)*self.params.zCA*self.params.Faraday/(self.params.R_cte*self.params.Temp))
 
         I_SERCA = self.params.I_SERCA_BARRE * Hill_function(C, self.params.C_SERCA, self.params.n_SERCA) #(32)
         I_PMCA = self.params.I_PMCA_BARRE * g_PMCA #(30)
-        I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre)    #(23) car V=V0
+
         V_C_ER_barre = self.params.R_cte*self.params.Temp*np.log(C_ER/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C_ER #(9) 
-        
+        V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(C_ext/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) 
+        I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre2)    #(23) car V=V0
+
         rho_CRAC_barre = self.params.rho_CRAC_neg  + (self.params.rho_CRAC_pos - self.params.rho_CRAC_neg)*(1.-Hill_function(C_ER,self.params.C_CRAC, self.params.n_CRAC)) #(25) 
         C_IP3R_inh = self.params.C_IP3R_inh_barre * Hill_function(P, self.params.P_IP3R_C,  self.params.n_IP3R_C)
         I_IP3R = self.params.g_IP3R_barre *g_IP3R*h_IP3R*(self.params.V0 - self.params.V_ER - V_C_ER_barre) # (28) 
+
+        
+
 
         #--------Système d'ODE--------
         dC_dt = -1./(self.params.zCA*(self.params.Faraday*(1. + B_C))) * (self.params.Xi*self.params.rho_PMCA*I_PMCA 
@@ -167,7 +175,7 @@ class Calcium_simulation:
         dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, self.params.n_IP3R_inh) - h_IP3R)/self.params.theta      # (29)
         dg_PMCA_dt = (Hill_function(C,self.params.C_PMCA,self.params.n_PMCA) - g_PMCA)/self.params.tau_PMCA      # (31)
 
-        return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt]
+        return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt,I_SERCA,I_PMCA,I_CRAC]
 
  
 # Not part of class    
@@ -187,7 +195,7 @@ def fC(b0,C,Kb):  #fraction of free calcium (3)
 def main():
     """ script part
     """
-    T = 100 # final time
+    T = 300 # final time
     # comment
     calc_sim = Calcium_simulation()
     
@@ -197,7 +205,7 @@ def main():
     t = np.linspace(0, T, 300)
     z = sol.sol(t)
     plt.plot(t, z.T)
-    plt.xlabel('t')
+    plt.xlabel('temps')
     plt.legend([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"])
     plt.title('Calcium simulation')
     plt.show()
@@ -213,6 +221,23 @@ def main():
     plt.tight_layout()
     plt.show()
 
+    #représentation des courbes de l'article
+    #figure 3-B
+    plt.plot(t, z[7]) 
+    plt.plot(t, z[8])
+    plt.plot(t, z[9])
+    plt.xlabel('temps ')
+    plt.legend([r"$I_{SERCA}$", r"$I_{PMCA}$", r"$I_{CRAC}$"])
+    plt.title('Calcium simulation')
+    plt.show()
+
+    #Figure 5
+    plt.semilogy(t,z[1],'r--')
+    plt.plot(t,1000*z[2],'b')
+    plt.plot(t,1000*z[0],'k')
+    plt.xlabel('temps')
+    plt.legend([r"$C_{ER}$", r"$1000IP3$", r"$1000C$"])
+    plt.show()
+
 if __name__ == "__main__":
-    main()
-    
+    main()   
