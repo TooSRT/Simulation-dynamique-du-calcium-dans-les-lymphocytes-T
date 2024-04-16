@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 #Numérotation correspondent à celles de l'article 
 
 #Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / V (Volt) / A (Ampère) / S (Siemens) / F (Farad) 
+#Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / V (Volt) / A (Ampère) / S (Siemens) / F (Farad) 
 
 class Parameters_system_ODE:
     def __init__(self):
@@ -17,6 +18,7 @@ class Parameters_system_ODE:
         self.fR = 0.25 #Pas d'unité
         self.fV = 0.01
         self.fA = 30
+        self.Cm = 28*1e-5 #F/dm^2
         self.Cm = 28*1e-5 #F/dm^2
 
         #Ions and potentials:
@@ -71,6 +73,8 @@ class Parameters_system_ODE:
         self.tau_IP3R = 0.1 #s
         self.tau_PMCA = 50. #s (31)
         self.tau_CRAC = 5. #s (24)
+        self.tau_PMCA = 50. #s (31)
+        self.tau_CRAC = 5. #s (24)
         self.theta = 0.3 #s (29)
 
         self.n_IP3R_act = 1.9 #Pas d'unité
@@ -122,6 +126,11 @@ class Calcium_simulation:
                 self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
                 self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre) ] #condition init pour I_CRAC
     # retour d'une array de la taille de la solution (donc 10)
+                Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA),
+                self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
+                self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
+                self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre) ] #condition init pour I_CRAC
+    # retour d'une array de la taille de la solution (donc 10)
     
     def functionT(self, t):
         if t < 10:
@@ -134,6 +143,8 @@ class Calcium_simulation:
         
         #print("t = " + str(t))
         #print(Y)
+        #print("t = " + str(t))
+        #print(Y)
         #-------Variables du système-------
         C = Y[0]
         C_ER = Y[1]
@@ -142,6 +153,7 @@ class Calcium_simulation:
         g_IP3R = Y[4]
         h_IP3R = Y[5]
         g_PMCA = Y[6]
+        #print("Y = " +str(Y))
         #print("Y = " +str(Y))
 
         #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
@@ -176,6 +188,7 @@ class Calcium_simulation:
         dg_PMCA_dt = (Hill_function(C,self.params.C_PMCA,self.params.n_PMCA) - g_PMCA)/self.params.tau_PMCA      # (31)
 
         return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt,I_SERCA,I_PMCA,I_CRAC]
+        return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt,I_SERCA,I_PMCA,I_CRAC]
 
  
 # Not part of class    
@@ -196,6 +209,7 @@ def main():
     """ script part
     """
     T = 300 # final time
+    T = 300 # final time
     # comment
     calc_sim = Calcium_simulation()
     
@@ -205,6 +219,7 @@ def main():
     t = np.linspace(0, T, 300)
     z = sol.sol(t)
     plt.plot(t, z.T)
+    plt.xlabel('temps')
     plt.xlabel('temps')
     plt.legend([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"])
     plt.title('Calcium simulation')
@@ -221,6 +236,26 @@ def main():
     plt.tight_layout()
     plt.show()
 
+    #représentation des courbes de l'article
+    #figure 3-B
+    plt.plot(t, z[7]) 
+    plt.plot(t, z[8])
+    plt.plot(t, z[9])
+    plt.xlabel('temps ')
+    plt.legend([r"$I_{SERCA}$", r"$I_{PMCA}$", r"$I_{CRAC}$"])
+    plt.title('Calcium simulation')
+    plt.show()
+
+    #Figure 5
+    plt.semilogy(t,z[1],'r--')
+    plt.plot(t,1000*z[2],'b')
+    plt.plot(t,1000*z[0],'k')
+    plt.xlabel('temps')
+    plt.legend([r"$C_{ER}$", r"$1000IP3$", r"$1000C$"])
+    plt.show()
+
+if __name__ == "__main__":
+    main()   
     #représentation des courbes de l'article
     #figure 3-B
     plt.plot(t, z[7]) 
