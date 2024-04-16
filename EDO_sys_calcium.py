@@ -125,11 +125,7 @@ class Calcium_simulation:
                 self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
                 self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
                 self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre) ] #condition init pour I_CRAC
-    # retour d'une array de la taille de la solution (donc 10)
-                Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA),
-                self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
-                self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
-                self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre) ] #condition init pour I_CRAC
+    
     # retour d'une array de la taille de la solution (donc 10)
     
     def functionT(self, t):
@@ -187,7 +183,6 @@ class Calcium_simulation:
         dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, self.params.n_IP3R_inh) - h_IP3R)/self.params.theta      # (29)
         dg_PMCA_dt = (Hill_function(C,self.params.C_PMCA,self.params.n_PMCA) - g_PMCA)/self.params.tau_PMCA      # (31)
 
-        return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt,I_SERCA,I_PMCA,I_CRAC]
         return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt,I_SERCA,I_PMCA,I_CRAC]
 
  
