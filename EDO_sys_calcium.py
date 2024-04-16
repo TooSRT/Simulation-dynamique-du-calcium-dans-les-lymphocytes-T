@@ -204,7 +204,6 @@ def main():
     """ script part
     """
     T = 300 # final time
-    T = 300 # final time
     # comment
     calc_sim = Calcium_simulation()
     
@@ -231,26 +230,6 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    #représentation des courbes de l'article
-    #figure 3-B
-    plt.plot(t, z[7]) 
-    plt.plot(t, z[8])
-    plt.plot(t, z[9])
-    plt.xlabel('temps ')
-    plt.legend([r"$I_{SERCA}$", r"$I_{PMCA}$", r"$I_{CRAC}$"])
-    plt.title('Calcium simulation')
-    plt.show()
-
-    #Figure 5
-    plt.semilogy(t,z[1],'r--')
-    plt.plot(t,1000*z[2],'b')
-    plt.plot(t,1000*z[0],'k')
-    plt.xlabel('temps')
-    plt.legend([r"$C_{ER}$", r"$1000IP3$", r"$1000C$"])
-    plt.show()
-
-if __name__ == "__main__":
-    main()   
     #représentation des courbes de l'article
     #figure 3-B
     plt.plot(t, z[7]) 
