@@ -27,7 +27,7 @@ class Parameters_system_ODE:
         self.C_ER0 = 0.4e6 #nM
         self.C_ext = 2.e3 #nM
         self.delta_V_C = 78*1.e-3 #V
-        self.delta_V_C_ER = 63*1.e-3 #mV
+        self.delta_V_C_ER = 63*1.e-3 #V
 
         #Calcium buffer: nM
         self.b0 = 100*1.e3 #nM
@@ -42,7 +42,7 @@ class Parameters_system_ODE:
         self.Cp = 0.5*1.e3 #nM
         self.n_p = 1 #Pas d'unité
 
-        #Densités surfacique: C/µm^2 = C/dm^2 * e10 = A.s/dm^3 * e10 = mA.s/dm^3 * e13
+        #Densités protéines µm^2 
         self.rho_IP3R = 11.35e10
         self.rho_SERCA = 700e10
         self.rho_PMCA= 68.57e10
@@ -120,7 +120,7 @@ class Calcium_simulation:
                 Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA),
                 self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
                 self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
-                self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre) ] #condition init pour I_CRAC
+                0] #condition init pour I_CRAC
     # retour d'une array de la taille de la solution (donc 10)
     
     def functionT(self, t):
@@ -147,17 +147,20 @@ class Calcium_simulation:
         #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
         B_C = BC(self.params.b0,self.params.Kb,C)
         B_CER = BC(self.params.b_ER0,self.params.K_ERb,C_ER)
+        C_ext = self.params.C0 * np.exp((self.params.V0-self.params.delta_V_C)*self.params.zCA*self.params.Faraday/(self.params.R_cte*self.params.Temp))
 
         I_SERCA = self.params.I_SERCA_BARRE * Hill_function(C, self.params.C_SERCA, self.params.n_SERCA) #(32)
         I_PMCA = self.params.I_PMCA_BARRE * g_PMCA #(30)
-        I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre)    #(23) car V=V0
+
         V_C_ER_barre = self.params.R_cte*self.params.Temp*np.log(C_ER/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C_ER #(9) 
-        
+        V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(C_ext/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) 
+        I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre2)    #(23) car V=V0
+
         rho_CRAC_barre = self.params.rho_CRAC_neg  + (self.params.rho_CRAC_pos - self.params.rho_CRAC_neg)*(1.-Hill_function(C_ER,self.params.C_CRAC, self.params.n_CRAC)) #(25) 
         C_IP3R_inh = self.params.C_IP3R_inh_barre * Hill_function(P, self.params.P_IP3R_C,  self.params.n_IP3R_C)
         I_IP3R = self.params.g_IP3R_barre *g_IP3R*h_IP3R*(self.params.V0 - self.params.V_ER - V_C_ER_barre) # (28) 
 
-
+        
         #--------Système d'ODE--------
         dC_dt = -1./(self.params.zCA*(self.params.Faraday*(1. + B_C))) * (self.params.Xi*self.params.rho_PMCA*I_PMCA 
             + self.params.Xi*rho_CRAC*I_CRAC 
