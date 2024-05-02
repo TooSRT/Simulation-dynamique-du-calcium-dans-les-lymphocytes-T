@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 #Numérotation correspondent à celles de l'article 
 
 #Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / V (Volt) / A (Ampère) / S (Siemens) / F (Farad) 
+#Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / V (Volt) / A (Ampère) / S (Siemens) / F (Farad) 
 
 class Parameters_system_ODE:
     def __init__(self):
@@ -17,6 +18,7 @@ class Parameters_system_ODE:
         self.fR = 0.25 #Pas d'unité
         self.fV = 0.01
         self.fA = 30
+        self.Cm = 28*1e-5 #F/dm^2
         self.Cm = 28*1e-5 #F/dm^2
 
         #Ions and potentials:
@@ -69,6 +71,8 @@ class Parameters_system_ODE:
         self.g_IP3R_max = 0.81 # C'est une probabilité d'ouverture
         
         self.tau_IP3R = 0.1 #s
+        self.tau_PMCA = 50. #s (31)
+        self.tau_CRAC = 5. #s (24)
         self.tau_PMCA = 50. #s (31)
         self.tau_CRAC = 5. #s (24)
         self.theta = 0.3 #s (29)
@@ -134,6 +138,8 @@ class Calcium_simulation:
         
         #print("t = " + str(t))
         #print(Y)
+        #print("t = " + str(t))
+        #print(Y)
         #-------Variables du système-------
         C = Y[0]
         C_ER = Y[1]
@@ -142,6 +148,7 @@ class Calcium_simulation:
         g_IP3R = Y[4]
         h_IP3R = Y[5]
         g_PMCA = Y[6]
+        #print("Y = " +str(Y))
         #print("Y = " +str(Y))
 
         #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
@@ -203,6 +210,7 @@ def main():
     t = np.linspace(0, T, 300)
     z = sol.sol(t)
     plt.plot(t, z.T)
+    plt.xlabel('temps')
     plt.xlabel('temps')
     plt.legend([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"])
     plt.title('Calcium simulation')
