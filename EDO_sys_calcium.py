@@ -27,7 +27,7 @@ class Parameters_system_ODE:
         self.C_ER0 = 0.4e6 #nM
         self.C_ext = 2.e3 #nM
         self.delta_V_C = 78*1.e-3 #V
-        self.delta_V_C_ER = 63*1.e-3 #mV
+        self.delta_V_C_ER = 63*1.e-3 #V
 
         #Calcium buffer: nM
         self.b0 = 100*1.e3 #nM
@@ -42,7 +42,7 @@ class Parameters_system_ODE:
         self.Cp = 0.5*1.e3 #nM
         self.n_p = 1 #Pas d'unité
 
-        #/µm^2
+        #Densités des protéines en surface dm^2
         self.rho_IP3R = 11.35e10
         self.rho_SERCA = 700e10
         self.rho_PMCA= 68.57e10
