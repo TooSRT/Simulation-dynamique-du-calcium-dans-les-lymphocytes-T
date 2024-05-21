@@ -113,6 +113,9 @@ class Calcium_simulation:
     
         C_IP3R_inh_0 = self.params.C_IP3R_inh_barre * Hill_function(self.params.P0, self.params.P_IP3R_C, self.params.n_IP3R_C)
         V_C_ER_barre_0 = self.params.R_cte*self.params.Temp*np.log(self.params.C_ER0/self.params.C0)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C_ER
+
+        C_ext0 = self.params.C0* np.exp((self.params.V0-self.params.delta_V_C)*(self.params.zCA*self.params.Faraday)/(self.params.R_cte*self.params.Temp))
+        V_C_barre_0 = self.params.R_cte*self.params.Temp*np.log(C_ext0/self.params.C0)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C
         return [self.params.C0, 
                 self.params.C_ER0, 
                 self.params.P0, 
@@ -122,7 +125,7 @@ class Calcium_simulation:
                 Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA), #g_PMCA
                 self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
                 self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
-                self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre), #I_CRAC
+                self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre_0), #I_CRAC
                 self.params.g_IP3R_barre *self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act)*Hill_function(C_IP3R_inh_0, self.params.C0, self.params.n_IP3R_inh)*(self.params.V0 - self.params.V_ER0 - V_C_ER_barre_0)] 
     
     # retour d'une array de la taille de la solution (donc 10)
@@ -150,14 +153,13 @@ class Calcium_simulation:
         #--------Initialisation de différentes fonctions/paramètres qui dépendent de nos variables--------
         B_C = BC(self.params.b0,self.params.Kb,C)
         B_CER = BC(self.params.b_ER0,self.params.K_ERb,C_ER)
-        C_ext = self.params.C0* np.exp((self.params.V0-self.params.delta_V_C)*self.params.zCA*self.params.Faraday/(self.params.R_cte*self.params.Temp))
 
         I_SERCA = self.params.I_SERCA_BARRE * Hill_function(C, self.params.C_SERCA, self.params.n_SERCA) #(32)
         I_PMCA = self.params.I_PMCA_BARRE * g_PMCA #(30)
 
         V_C_ER_barre = self.params.R_cte*self.params.Temp*np.log(C_ER/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C_ER #(9) 
-        V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(2e6/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) #calcium extérieur
-        V_C_barre = 50*1.e-3 
+        C_ext = C* np.exp((self.params.V0-self.params.delta_V_C)*(self.params.zCA*self.params.Faraday)/(self.params.R_cte*self.params.Temp))#calcium extérieur
+        V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(C_ext/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) 
         I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre2)   #(23) car V=V0
 
         rho_CRAC_barre = self.params.rho_CRAC_neg + (self.params.rho_CRAC_pos - self.params.rho_CRAC_neg)*(1.-Hill_function(C_ER,self.params.C_CRAC, self.params.n_CRAC)) #(25) 
