@@ -63,14 +63,14 @@ class Parameters_system_ODE:
         self.A_ER = 4*np.pi*self.fA*(3*self.V_ER_tilde/(4*np.pi))**(2./3.) #(22)
 
         self.Xi = self.Acell/self.Vcyt #(16) dm^2 
-        self.Xi_ER = self.A_ER/self.Vcyt   #(17)
-        self.Xi_ERC = self.A_ER/self.V_ER_tilde #(19)
+        self.Xi_ER = self.A_ER/self.V_ER_tilde   #(17)
+        self.Xi_ERC = self.A_ER/self.Vcyt  #(18)
         
         #--------Constantes--------
         self.g_IP3R_max = 0.81 # C'est une probabilité d'ouverture
         
         self.tau_IP3R = 0.1 #s
-        self.tau_PMCA = 50. #s (31)
+        self.tau_PMCA = 50 #s (31)
         self.tau_CRAC = 5. #s (24)
         self.theta = 0.3 #s (29)
 
@@ -125,7 +125,7 @@ class Calcium_simulation:
                 Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA), #g_PMCA
                 self.params.I_SERCA_BARRE * Hill_function(self.params.C0, self.params.C_SERCA, self.params.n_SERCA), #condition init pour I_SERCA
                 self.params.I_PMCA_BARRE * self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act), #condition init pour I_PMCA
-                self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre_0), #I_CRAC
+                self.params.g_CRAC_BARRE*(self.params.V0 - self.params.V_C_barre), #I_CRAC
                 self.params.g_IP3R_barre *self.params.g_IP3R_max * Hill_function(self.params.C0, self.params.C_IP3R_act, self.params.n_IP3R_act)*Hill_function(C_IP3R_inh_0, self.params.C0, self.params.n_IP3R_inh)*(self.params.V0 - self.params.V_ER0 - V_C_ER_barre_0)] 
     
     # retour d'une array de la taille de la solution (donc 10)
@@ -159,7 +159,7 @@ class Calcium_simulation:
 
         V_C_ER_barre = self.params.R_cte*self.params.Temp*np.log(C_ER/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C_ER #(9) 
         C_ext = C* np.exp((self.params.V0-self.params.delta_V_C)*(self.params.zCA*self.params.Faraday)/(self.params.R_cte*self.params.Temp))#calcium extérieur
-        V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(C_ext/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) 
+        V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(2e6/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) 
         I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre2)   #(23) car V=V0
 
         rho_CRAC_barre = self.params.rho_CRAC_neg + (self.params.rho_CRAC_pos - self.params.rho_CRAC_neg)*(1.-Hill_function(C_ER,self.params.C_CRAC, self.params.n_CRAC)) #(25) 
@@ -177,7 +177,7 @@ class Calcium_simulation:
         dg_IP3R_dt = (self.params.g_IP3R_max*Hill_function(C,self.params.C_IP3R_act,self.params.n_IP3R_act) - g_IP3R) /self.params.tau_IP3R     # (29)
         dh_IP3R_dt = (Hill_function(C_IP3R_inh, C, self.params.n_IP3R_inh) - h_IP3R)/self.params.theta      # (29)
         dg_PMCA_dt = (Hill_function(C,self.params.C_PMCA,self.params.n_PMCA) - g_PMCA)/self.params.tau_PMCA      # (31)
-
+        print(dg_PMCA_dt)
         return [dC_dt,dC_ER_dt,dP_dt,drho_CRAC_dt,dg_IP3R_dt,dh_IP3R_dt,dg_PMCA_dt,I_SERCA,I_PMCA,I_CRAC,I_IP3R]
 
  
@@ -198,14 +198,14 @@ def fC(b0,C,Kb):  #fraction of free calcium (3)
 def main():
     """ script part
     """
-    T = 200 # final time
+    T = 300 # final time
     # comment
     calc_sim = Calcium_simulation()
     
     sol = solve_ivp(calc_sim.ODE_sys, [0, T], calc_sim.Y ,method= calc_sim.method_integ,  dense_output=True,  rtol=1e-6, atol=1e-10)
     
 
-    t = np.linspace(0, T, 200)
+    t = np.linspace(0, T, 300)
     z = sol.sol(t)
     '''
     plt.plot(t, z.T)
@@ -228,6 +228,18 @@ def main():
     plt.show()
 
     #représentation des courbes de l'article
+    plt.plot(t, z[0],'k')
+    plt.xlabel('Temps ')
+    plt.ylabel("Calcium [nM]")
+    plt.legend([r"$C$"])
+    plt.show()
+
+    plt.plot(t, z[6],'b')
+    plt.xlabel('Temps ')
+    plt.ylabel("Calcium [nM]")
+    plt.legend([r"$g_{PMCA}$"])
+    plt.show()
+
     #figure 3-B
     plt.plot(t, z[7],'r--') 
     plt.plot(t, z[8],'k--')
@@ -238,12 +250,14 @@ def main():
     plt.legend([r"$I_{SERCA} (ER)$", r"$I_{PMCA} (PM)$", r"$I_{CRAC} (PM)$",r"$I_{IP3R} (ER)$"])
     plt.show()
 
+    '''
     plt.plot(t,z[0],'k')
     plt.plot(t,z[5],'g--')
     plt.xlabel('Temps ')
     plt.legend([r"$C$", r"$h_{IP3R}$"])
     plt.title("Calcium [nM]")
     plt.show()
+    '''
 
     #Figure 5
     '''
