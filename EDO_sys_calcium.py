@@ -134,7 +134,7 @@ class Calcium_simulation:
         if t < 10:
             return 1.
         else:
-            return 1.6
+            return 1
         
     
     def ODE_sys(self, t, Y): 
@@ -157,9 +157,9 @@ class Calcium_simulation:
         I_PMCA = self.params.I_PMCA_BARRE * g_PMCA #(30)
 
         V_C_ER_barre = self.params.R_cte*self.params.Temp*np.log(C_ER/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C_ER #(9) 
-        C_ext = self.params.C0* np.exp((50*1e-3 -self.params.delta_V_C)*(self.params.zCA*self.params.Faraday)/(self.params.R_cte*self.params.Temp))#calcium extérieur
+        C_ext = self.params.C0* np.exp(( self.params.V0 + self.params.delta_V_C)*(self.params.zCA*self.params.Faraday)/(self.params.R_cte*self.params.Temp))#calcium extérieur
         V_C_barre2 = self.params.R_cte*self.params.Temp*np.log(C_ext/C)/(self.params.zCA*self.params.Faraday) - self.params.delta_V_C #(9) 
-        I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0  - V_C_barre2)   #(23) car V=V0
+        I_CRAC = self.params.g_CRAC_BARRE*(self.params.V0 - V_C_barre2)   #(23) car V=V0
 
         rho_CRAC_barre = self.params.rho_CRAC_neg + (self.params.rho_CRAC_pos - self.params.rho_CRAC_neg)*(1.-Hill_function(C_ER,self.params.C_CRAC, self.params.n_CRAC)) #(25) 
         C_IP3R_inh = self.params.C_IP3R_inh_barre * Hill_function(P, self.params.P_IP3R_C,  self.params.n_IP3R_C)
@@ -185,12 +185,12 @@ class Calcium_simulation:
         self.net_Ca_to_ER.append((I_IP3R*self.params.rho_IP3R + I_SERCA*self.params.rho_SERCA))
         
 
-        '''
+        
         if t < 10:
             I_SERCA = self.params.I_SERCA_BARRE * Hill_function(C, self.params.C_SERCA, self.params.n_SERCA) #(32)
         else:
             I_SERCA = 0
-        '''
+        
         
         #--------Système d'ODE--------
         dC_dt = -1./(self.params.zCA*(self.params.Faraday*(1. + B_C))) * (self.params.Xi*self.params.rho_PMCA*I_PMCA 
