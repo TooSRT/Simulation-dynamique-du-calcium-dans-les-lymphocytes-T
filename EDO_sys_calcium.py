@@ -82,7 +82,7 @@ class Parameters_system_ODE:
         self.n_PMCA = 2. # Hill coefficient
 
         self.C_IP3R_act = 0.21e3 #nM (27)
-        self.C_PMCA = 0.1e3 #nM
+        self.C_PMCA = 0.2e3 #nM
         self.C_IP3R_inh_barre = 52.e3 #nM (27)
         self.C_CRAC = 169.e3 #nM (25)
         self.P_IP3R_C = 0.05e3 #nM (27)
@@ -232,7 +232,7 @@ def main():
 
     t = np.linspace(0, T, 300)
     z = sol.sol(t)
-    
+    '''
     #Tracer chaque courbe séparément
     plt.figure(figsize=(10, 8))
     for i, var_name in enumerate([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"]):
@@ -243,15 +243,18 @@ def main():
     
     plt.tight_layout()
     plt.show()
+    '''
 
     #représentation des courbes de l'article
+    plt.figure(figsize=(12, 8))
     plt.plot(t, z[0],'k')
     plt.xlabel('Temps ')
     plt.ylabel("Calcium [nM]")
+    plt.title("Calcium sans les canaux CRAC")
     plt.legend([r"$C$"])
     plt.show()
     
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(12, 8))
     plt.plot(t, z[3],'k')
     plt.xlabel('Temps [s]')
     plt.ylabel("Densité des canaux CRAC actifs [#/dm^2]")
@@ -261,7 +264,7 @@ def main():
     #figure 3-B
     
     #Graphe courants
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(12, 8))
     plt.plot(np.linspace(0, T, len(calc_sim.I_PMCA_values)), calc_sim.I_PMCA_values,'k--')
     plt.plot(np.linspace(0, T, len(calc_sim.I_CRAC_values)), calc_sim.I_CRAC_values,'k')
     plt.plot(np.linspace(0, T, len(calc_sim.I_SERCA_values)), calc_sim.I_SERCA_values,'r--')
@@ -275,24 +278,15 @@ def main():
     plt.show()
     
 
-    '''
-    plt.plot(t,z[0],'k')
-    plt.plot(t,z[5],'g--')
-    plt.xlabel('Temps ')
-    plt.legend([r"$C$", r"$h_{IP3R}$"])
-    plt.title("Calcium [nM]")
-    plt.show()
-    '''
-
     #Figure 5
-    '''
+
     plt.plot(t,z[1],'r--')
     plt.plot(t,1000*z[2],'b')
     plt.plot(t,1000*z[0],'k')
     plt.xlabel('temps')
     plt.legend([r"$C_{ER}$", r"$1000IP3$", r"$1000C$"])
     plt.show()
-    '''
+
     
 
 if __name__ == "__main__":
