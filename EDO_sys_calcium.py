@@ -65,7 +65,7 @@ class Parameters_system_ODE:
         self.Xi = self.Acell/self.Vcyt #(16) dm^2 
         self.Xi_ER = self.A_ER/self.V_ER_tilde   #(17)
         self.Xi_ERC = self.A_ER/self.Vcyt  #(18)
-        
+
         #--------Constantes--------
         self.g_IP3R_max = 0.81 # C'est une probabilité d'ouverture
         
@@ -128,13 +128,13 @@ class Calcium_simulation:
                 Hill_function(self.params.C0,self.params.C_PMCA,self.params.n_PMCA) #g_PMCA
                 ]
     
-    # retour d'une array de la taille de la solution (donc 10)
+    # retour d'une array de la taille de la solution (donc 7)
     
     def functionT(self, t):
         if t < 10:
             return 1.
         else:
-            return 1
+            return 1.6
         
     
     def ODE_sys(self, t, Y): 
@@ -175,22 +175,22 @@ class Calcium_simulation:
 
         
         #Courant de l'ensemble de la cellule
-        self.I_PMCA_values.append((I_PMCA*self.params.rho_PMCA)) #PM
-        self.I_CRAC_values.append((I_CRAC*rho_CRAC)) #PM
-        self.I_SERCA_values.append((I_SERCA*self.params.rho_SERCA)) #ER
-        self.I_IP3R_values.append((I_IP3R*self.params.rho_IP3R)) #ER
-
+        self.I_PMCA_values.append((I_PMCA*self.params.rho_PMCA)*self.params.Acell) #PM
+        self.I_CRAC_values.append((I_CRAC*rho_CRAC)*self.params.Acell) #PM
+        self.I_SERCA_values.append((I_SERCA*self.params.rho_SERCA)*self.params.Acell) #ER
+        self.I_IP3R_values.append((I_IP3R*self.params.rho_IP3R)*self.params.Acell) #ER
+        
         #Totaux des courants entrants et sortants
-        self.net_Ca_out.append((I_PMCA*self.params.rho_PMCA - I_CRAC*rho_CRAC))
-        self.net_Ca_to_ER.append((I_IP3R*self.params.rho_IP3R + I_SERCA*self.params.rho_SERCA))
+        self.net_Ca_out.append((I_PMCA*self.params.rho_PMCA + I_CRAC*rho_CRAC)*self.params.Acell)
+        self.net_Ca_to_ER.append((I_IP3R*self.params.rho_IP3R + I_SERCA*self.params.rho_SERCA)*self.params.Acell)
         
 
-        
+        '''
         if t < 10:
             I_SERCA = self.params.I_SERCA_BARRE * Hill_function(C, self.params.C_SERCA, self.params.n_SERCA) #(32)
         else:
             I_SERCA = 0
-        
+        '''
         
         #--------Système d'ODE--------
         dC_dt = -1./(self.params.zCA*(self.params.Faraday*(1. + B_C))) * (self.params.Xi*self.params.rho_PMCA*I_PMCA 
@@ -244,11 +244,11 @@ def main():
     plt.tight_layout()
     plt.show()
     '''
-
+    
     #représentation des courbes de l'article
     plt.figure(figsize=(12, 8))
     plt.plot(t, z[0],'k')
-    plt.xlabel('Temps ')
+    plt.xlabel('Temps [s]')
     plt.ylabel("Calcium [nM]")
     plt.title("Calcium sans les canaux CRAC")
     plt.legend([r"$C$"])
@@ -260,32 +260,35 @@ def main():
     plt.ylabel("Densité des canaux CRAC actifs [#/dm^2]")
     plt.legend([r"$\rho_{CRAC}$"])
     plt.show()
-
+    
     #figure 3-B
     
     #Graphe courants
+    
     plt.figure(figsize=(12, 8))
-    plt.plot(np.linspace(0, T, len(calc_sim.I_PMCA_values)), calc_sim.I_PMCA_values,'k--')
+    plt.plot(np.linspace(0, T, len(calc_sim.I_PMCA_values)), calc_sim.I_PMCA_values,'k:')
     plt.plot(np.linspace(0, T, len(calc_sim.I_CRAC_values)), calc_sim.I_CRAC_values,'k')
-    plt.plot(np.linspace(0, T, len(calc_sim.I_SERCA_values)), calc_sim.I_SERCA_values,'r--')
+    plt.plot(np.linspace(0, T, len(calc_sim.I_SERCA_values)), calc_sim.I_SERCA_values,'r:')
     plt.plot(np.linspace(0, T, len(calc_sim.I_IP3R_values)), calc_sim.I_IP3R_values,'r')
-    plt.plot(np.linspace(0, T, len(calc_sim.net_Ca_to_ER)),calc_sim.net_Ca_to_ER,':',color='red')
-    plt.plot(np.linspace(0, T, len(calc_sim.net_Ca_out)),calc_sim.net_Ca_out,':',color='black')
+    plt.plot(np.linspace(0, T, len(calc_sim.net_Ca_to_ER)),calc_sim.net_Ca_to_ER,'--',color='red')
+    plt.plot(np.linspace(0, T, len(calc_sim.net_Ca_out)),calc_sim.net_Ca_out,'--',color='black')
     plt.legend([r"$I_{PMCA} (PM)$",r"$I_{CRAC} (PM)$",r"$I_{SERCA} (ER)$",r"$I_{IP3R} (ER)$",r"net Ca to ER",r"net Ca out"])
     plt.xlabel('Temps [s]')
     plt.ylabel("Courrant total de la cellule [A]")
     plt.title('Évolution de nos courants en fonction du temps')
     plt.show()
     
-
+    """
     #Figure 5
-
-    plt.plot(t,z[1],'r--')
+    plt.figure(figsize=(12, 8))
+    plt.semilogy(t,z[1],'r--')
     plt.plot(t,1000*z[2],'b')
     plt.plot(t,1000*z[0],'k')
-    plt.xlabel('temps')
-    plt.legend([r"$C_{ER}$", r"$1000IP3$", r"$1000C$"])
+    plt.xlabel('Temps [s]')
+    plt.ylabel('Concentration [nM]')
+    plt.legend([r"$Ca_{ER}$", r"$1000IP_3$", r"$1000Ca$"])
     plt.show()
+    """
 
     
 
