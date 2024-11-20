@@ -1,105 +1,16 @@
-#Fichier contenant toutes nos constantes
-
-
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy import constants
 import matplotlib.pyplot as plt
-
-#Numérotation correspondent à celles de l'article 
-
-#Unités utilisés : nmol/dm^3 = nM (nanomolar) / dm (mètre) / s (secondes) / V (Volt) / A (Ampère) / S (Siemens) / F (Farad) 
-
-class Parameters_system_ODE:
-    def __init__(self):
-        #-------Constantes du tableau------
-        self.Rcell = 8e-5 #dm
-        self.fR = 0.25 #Pas d'unité
-        self.fV = 0.01
-        self.fA = 30
-        self.Cm = 28*1e-5 #F/dm^2
-
-        #Ions and potentials:
-        self.Temp = 310 #Kelvin
-        self.V0 = -60*1e-3 #V 
-        self.V_ER = -60*1e-3 #V
-        self.V_ER0 = -60*1e-3 #V
-        self.C0 = 0.1e3 #nM
-        self.C_ER0 = 0.4e6 #nM
-        self.C_ext = 2.e3 #nM
-        self.delta_V_C = 78*1.e-3 #V
-        self.delta_V_C_ER = 63*1.e-3 #mV
-
-        #Calcium buffer: nM
-        self.b0 = 100*1.e3 #nM
-        self.Kb = 0.1*1.e3 #nM
-        self.b_ER0 = 30*1.e6 #nM
-        self.K_ERb = 0.1*1.e6 #nM
-
-        #Second messengers: nM
-        self.P0 = 8.7 #nM
-        self.beta_p = 0.6 #nM/s
-        self.gamma_p = 0.01149 #1/s
-        self.Cp = 0.5*1.e3 #nM
-        self.n_p = 1 #Pas d'unité
-
-        #/µm^2
-        self.rho_IP3R = 11.35e10
-        self.rho_SERCA = 700e10
-        self.rho_PMCA= 68.57e10
-        self.rho_CRAC0 = 0.6e10
-        self.rho_CRAC_pos = 3.9e10
-        self.rho_CRAC_neg = 0.5115e10
-        
-        #-------Déterminations de constantes--------
-        self.Faraday = 96485.3321*1e-9 # A.s/nmol 
-        self.R_cte = 8.315e-9 #Molar gaz constant J/(K.nmol) (9)
-        self.zCA = 2. #Pas d'unité
-        self.V_C_barre = 50*1.e-3 #V (9)
-        self.Acell = 804.2e-10 # µm^2 = dm^2 * e-10
-
-        self.Vcyt = 4/3 * np.pi * self.Rcell**3 * (1-self.fV-self.fR**3) #(20)
-        self.V_ER_tilde = 4/3 * np.pi * self.Rcell**3 *self.fV #(21)
-        self.A_ER = 4*np.pi*self.fA*(3*self.V_ER_tilde/(4*np.pi))**(2./3.) #(22)
-
-        self.Xi = self.Acell/self.Vcyt #(16) dm^2 
-        self.Xi_ER = self.A_ER/self.V_ER_tilde   #(17)
-        self.Xi_ERC = self.A_ER/self.Vcyt  #(18)
-
-        #--------Constantes--------
-        self.g_IP3R_max = 0.81 # C'est une probabilité d'ouverture
-        
-        self.tau_IP3R = 0.1 #s
-        self.tau_PMCA = 50 #s (31)
-        self.tau_CRAC = 5. #s (24)
-        self.theta = 0.3 #s (29)
-
-        self.n_IP3R_act = 1.9 #Pas d'unité
-        self.n_IP3R_inh = 3.9 #Pas d'unité (27)
-        self.n_IP3R_C = 4. #pas d'unité (27)
-        self.n_SERCA = 2. #pas d'unité (32)
-        self.n_CRAC = 4.2 #pas d'unité (25)
-        self.n_PMCA = 2. # Hill coefficient
-
-        self.C_IP3R_act = 0.21e3 #nM (27)
-        self.C_PMCA = 0.2e3 #nM
-        self.C_IP3R_inh_barre = 52.e3 #nM (27)
-        self.C_CRAC = 169.e3 #nM (25)
-        self.P_IP3R_C = 0.05e3 #nM (27)
-        self.C_SERCA= 0.4e3 #nM
-        
-        self.I_SERCA_BARRE = 3.e-18 #A (32)
-        self.I_PMCA_BARRE = 1.e-17 #A (30)
-        self.g_CRAC_BARRE = 2.e-15 #S (23)
-        self.g_IP3R_barre = 0.064e-12 #S (28)
-    
+from Parameters_EDO import Parameters_system_ODE
         
 class Calcium_simulation:
     """ Cette classe implémente la simulation du système d'EDO. 
     Elle rassemble donc les paramêtres et le système d'équation ainsi que la méthode de résolution. 
     """
     def __init__(self):
-        """ Constructeurs par défaut de la classe. 
+        """ 
+        Constructeurs par défaut de la classe. 
         Le constructeur permets de remplir les paramêtres ainsi que de spécifier l'intégrateur temporel.
         """
         self.params = Parameters_system_ODE()
@@ -130,7 +41,7 @@ class Calcium_simulation:
     
     # retour d'une array de la taille de la solution (donc 7)
     
-    def functionT(self, t):
+    def functionT(self, t): #Utilisé pour déterminer quand le pic de calcium aura lieu
         if t < 10:
             return 1.
         else:
@@ -219,78 +130,3 @@ def BC(b,K,C): #cytosolic calcium-buffer (2)
 def fC(b0,C,Kb):  #fraction of free calcium (3)
     return 1 / ( 1 + b0/(C+Kb) )
 
-
-
-def main():
-    """ script part
-    """
-    T = 300 # final time
-    # comment
-    calc_sim = Calcium_simulation()
-    
-    sol = solve_ivp(calc_sim.ODE_sys, [0, T], calc_sim.Y ,method= calc_sim.method_integ,  dense_output=True,  rtol=1e-6, atol=1e-10)
-
-    t = np.linspace(0, T, 300)
-    z = sol.sol(t)
-    '''
-    #Tracer chaque courbe séparément
-    plt.figure(figsize=(10, 8))
-    for i, var_name in enumerate([r"$C$", r"$C_{ER}$", r"$P$", r"$\rho_{CRAC}$", r"$g_{IP3R}$", r"$h_{IP3R}$", r"$g_{PMCA}$"]):
-        plt.subplot(4, 2, i+1)
-        plt.plot(t, z[i])
-        plt.xlabel('t')
-        plt.title(var_name)
-    
-    plt.tight_layout()
-    plt.show()
-    '''
-    
-    #représentation des courbes de l'article
-    plt.figure(figsize=(12, 8))
-    plt.plot(t, z[0],'k')
-    plt.xlabel('Temps [s]')
-    plt.ylabel("Calcium [nM]")
-    plt.title("Calcium sans les canaux CRAC")
-    plt.legend([r"$C$"])
-    plt.show()
-    
-    plt.figure(figsize=(12, 8))
-    plt.plot(t, z[3],'k')
-    plt.xlabel('Temps [s]')
-    plt.ylabel("Densité des canaux CRAC actifs [#/dm^2]")
-    plt.legend([r"$\rho_{CRAC}$"])
-    plt.show()
-    
-    #figure 3-B
-    
-    #Graphe courants
-    
-    plt.figure(figsize=(12, 8))
-    plt.plot(np.linspace(0, T, len(calc_sim.I_PMCA_values)), calc_sim.I_PMCA_values,'k:')
-    plt.plot(np.linspace(0, T, len(calc_sim.I_CRAC_values)), calc_sim.I_CRAC_values,'k')
-    plt.plot(np.linspace(0, T, len(calc_sim.I_SERCA_values)), calc_sim.I_SERCA_values,'r:')
-    plt.plot(np.linspace(0, T, len(calc_sim.I_IP3R_values)), calc_sim.I_IP3R_values,'r')
-    plt.plot(np.linspace(0, T, len(calc_sim.net_Ca_to_ER)),calc_sim.net_Ca_to_ER,'--',color='red')
-    plt.plot(np.linspace(0, T, len(calc_sim.net_Ca_out)),calc_sim.net_Ca_out,'--',color='black')
-    plt.legend([r"$I_{PMCA} (PM)$",r"$I_{CRAC} (PM)$",r"$I_{SERCA} (ER)$",r"$I_{IP3R} (ER)$",r"net Ca to ER",r"net Ca out"])
-    plt.xlabel('Temps [s]')
-    plt.ylabel("Courrant total de la cellule [A]")
-    plt.title('Évolution de nos courants en fonction du temps')
-    plt.show()
-    
-    """
-    #Figure 5
-    plt.figure(figsize=(12, 8))
-    plt.semilogy(t,z[1],'r--')
-    plt.plot(t,1000*z[2],'b')
-    plt.plot(t,1000*z[0],'k')
-    plt.xlabel('Temps [s]')
-    plt.ylabel('Concentration [nM]')
-    plt.legend([r"$Ca_{ER}$", r"$1000IP_3$", r"$1000Ca$"])
-    plt.show()
-    """
-
-    
-
-if __name__ == "__main__":
-    main()   
